@@ -4,7 +4,7 @@ import java.sql.Timestamp;
 
 public class Order {
 
-    private Integer wareHouseID;
+    private Integer warehouseID;
     private Integer DistrictID;
     private Integer OrderID;
     private Integer CustomerID;
@@ -15,12 +15,12 @@ public class Order {
 
 
 
-    public Integer getWareHouseID() {
-        return wareHouseID;
+    public Integer getWarehouseID() {
+        return warehouseID;
     }
 
-    public void setWareHouseID(Integer wareHouseID) {
-        this.wareHouseID = wareHouseID;
+    public void setWarehouseID(Integer warehouseID) {
+        this.warehouseID = warehouseID;
     }
 
     public Integer getDistrictID() {
@@ -82,7 +82,7 @@ public class Order {
     @Override
     public String toString() {
         return "Order{" +
-                "wareHouseID=" + wareHouseID +
+                "wareHouseID=" + warehouseID +
                 ", DistrictID=" + DistrictID +
                 ", OrderID=" + OrderID +
                 ", CustomerID=" + CustomerID +

@@ -3,7 +3,6 @@ package edu.teamv;
 import edu.teamv.datasource.impl.PgDataSource;
 import edu.teamv.pojo.Order;
 import org.junit.Test;
-import org.postgresql.jdbc.PgConnection;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -20,7 +19,7 @@ public class PojoTest {
         ResultSet resultSet = statement.executeQuery(sql);
         Order order = new Order();
         while (resultSet.next()) {
-            order.setWareHouseID(resultSet.getInt(1));
+            order.setWarehouseID(resultSet.getInt(1));
             order.setDistrictID(resultSet.getInt(2));
             order.setOrderID(resultSet.getInt(3));
             order.setCustomerID(resultSet.getInt(4));

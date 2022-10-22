@@ -70,7 +70,7 @@ public class Delivery extends Transaction {
 
             while (resultSet.next()) {
                 Order order = new Order();
-                order.setWareHouseID(warehouseID);
+                order.setWarehouseID(warehouseID);
                 order.setDistrictID(i);
                 order.setOrderID(resultSet.getInt(1));
                 order.setCustomerID(resultSet.getInt(2));
@@ -90,7 +90,7 @@ public class Delivery extends Transaction {
                 "where o_w_id = ? and o_d_id = ? and o_id = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(updateCarrierSql);
         preparedStatement.setInt(1, order.getCarrierID());
-        preparedStatement.setInt(2, order.getWareHouseID());
+        preparedStatement.setInt(2, order.getWarehouseID());
         preparedStatement.setInt(3, order.getDistrictID());
         preparedStatement.setInt(4, order.getOrderID());
         preparedStatement.executeUpdate();
@@ -106,7 +106,7 @@ public class Delivery extends Transaction {
 
         PreparedStatement preparedStatement = connection.prepareStatement(updateOrderLineTimestampSql);
         preparedStatement.setTimestamp(1, timestamp);
-        preparedStatement.setInt(2, order.getWareHouseID());
+        preparedStatement.setInt(2, order.getWarehouseID());
         preparedStatement.setInt(3, order.getDistrictID());
         preparedStatement.setInt(4, order.getOrderID());
         preparedStatement.executeUpdate();
@@ -122,7 +122,7 @@ public class Delivery extends Transaction {
                 "where ol_w_id = ? and ol_d_id = ? and ol_o_id = ?";
 
         PreparedStatement preparedStatement = connection.prepareStatement(selectSumOfAmountSql);
-        preparedStatement.setInt(1, order.getWareHouseID());
+        preparedStatement.setInt(1, order.getWarehouseID());
         preparedStatement.setInt(2, order.getDistrictID());
         preparedStatement.setInt(3, order.getOrderID());
 
@@ -140,7 +140,7 @@ public class Delivery extends Transaction {
 
         preparedStatement = connection.prepareStatement(updateCustomer);
         preparedStatement.setBigDecimal(1, totalAmount);
-        preparedStatement.setInt(2, order.getWareHouseID());
+        preparedStatement.setInt(2, order.getWarehouseID());
         preparedStatement.setInt(3, order.getDistrictID());
         preparedStatement.setInt(4, order.getCustomerID());
         preparedStatement.executeUpdate();
