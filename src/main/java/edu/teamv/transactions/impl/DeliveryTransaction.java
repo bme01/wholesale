@@ -9,14 +9,14 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Delivery extends Transaction {
+public class DeliveryTransaction extends Transaction {
 
     private final Integer warehouseID;
     private final Integer carrierID;
 
     private final Connection connection;
 
-    public Delivery(String[] parameters) throws SQLException, IOException, ClassNotFoundException {
+    public DeliveryTransaction(String[] parameters) throws SQLException, IOException, ClassNotFoundException {
         super(parameters);
         warehouseID = Integer.parseInt(parameters[0]);
         carrierID = Integer.parseInt(parameters[1]);

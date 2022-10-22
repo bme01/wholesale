@@ -1,7 +1,7 @@
 package edu.teamv;
 
 import edu.teamv.transactions.Transaction;
-import edu.teamv.transactions.impl.Delivery;
+import edu.teamv.transactions.impl.DeliveryTransaction;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -12,7 +12,7 @@ public class TransactionTest {
     public void DeliveryTest() {
         String parameters[] = {"1", "1"};
         try {
-            Transaction transaction = new Delivery(parameters);
+            Transaction transaction = new DeliveryTransaction(parameters);
             transaction.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
