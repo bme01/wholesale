@@ -14,8 +14,8 @@ import java.sql.SQLException;
 
 public class PgDataSource implements DataSource {
     public static Connection getConnection() throws IOException, SQLException, ClassNotFoundException {
+
         databaseProperties.load(new FileInputStream("src/main/resources/postgresql.properties"));
-        System.out.println(databaseProperties.toString());
 
         poolProperties.setProperty("dataSourceClassName", databaseProperties.getProperty("driver"));
         poolProperties.setProperty("jdbcUrl", databaseProperties.getProperty("jdbcurl"));
@@ -26,7 +26,6 @@ public class PgDataSource implements DataSource {
         poolProperties.setProperty("dataSource.databaseName", databaseProperties.getProperty("dbname"));
         poolProperties.setProperty("dataSource.user", databaseProperties.getProperty("user"));
         poolProperties.setProperty("dataSource.password", databaseProperties.getProperty("password"));
-        System.out.println(poolProperties.toString());
 
         HikariConfig hikariconfig = new HikariConfig(poolProperties);
         hikariconfig.validate();
