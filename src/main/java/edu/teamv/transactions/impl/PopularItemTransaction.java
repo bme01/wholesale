@@ -47,7 +47,6 @@ public class PopularItemTransaction extends Transaction {
             Iterator iterator1 = orderPopularItemMap.entrySet().iterator();
             while (iterator1.hasNext()) {
                 Map.Entry entry = (Map.Entry) iterator1.next();
-                Order order = (Order) entry.getKey();
                 List<PopularItem> popularItems = (List<PopularItem>) entry.getValue();
                 for (PopularItem popularItem : popularItems) {
                     if (itemCount.containsKey(popularItem.itemName)) {
@@ -114,7 +113,9 @@ public class PopularItemTransaction extends Transaction {
         preparedStatement.setInt(1, warehouseID);
         preparedStatement.setInt(2, districtID);
         preparedStatement.setInt(3, nextOrderID - lastN);
-        preparedStatement.setInt(4, lastN - 1);
+        preparedStatement.setInt(4, nextOrderID - 1);
+
+        System.out.println(preparedStatement);
 
         ResultSet resultSet = preparedStatement.executeQuery();
         List<Order> orders = new ArrayList<>();
