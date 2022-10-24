@@ -87,7 +87,7 @@ public class DeliveryTransaction extends Transaction {
     // set carrier for each order
     private void updateCarrier(Order order) throws SQLException {
         String updateCarrierSql = "update wholesale.order set o_carrier_id = ? \n" +
-                "where o_w_id = ? and o_d_id = ? and o_id = ?";
+                "where o_w_id = ? and o_d_id = ? and o_id = ?;";
         PreparedStatement preparedStatement = connection.prepareStatement(updateCarrierSql);
         preparedStatement.setInt(1, order.getCarrierID());
         preparedStatement.setInt(2, order.getWarehouseID());
@@ -101,7 +101,7 @@ public class DeliveryTransaction extends Transaction {
     // update timestamp of order lines for each order
     private void updateOrderLines(Order order) throws SQLException {
         String updateOrderLineTimestampSql = "update wholesale.order_line set ol_delivery_d = ? \n" +
-                "where ol_w_id = ? and ol_d_id = ? and ol_o_id = ?";
+                "where ol_w_id = ? and ol_d_id = ? and ol_o_id = ?;";
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
         PreparedStatement preparedStatement = connection.prepareStatement(updateOrderLineTimestampSql);
@@ -119,7 +119,7 @@ public class DeliveryTransaction extends Transaction {
     private void updateCustomer(Order order) throws SQLException {
         // calculate the total amount of the order
         String selectSumOfAmountSql = "select sum(ol_amount) from wholesale.order_line \n" +
-                "where ol_w_id = ? and ol_d_id = ? and ol_o_id = ?";
+                "where ol_w_id = ? and ol_d_id = ? and ol_o_id = ?;";
 
         PreparedStatement preparedStatement = connection.prepareStatement(selectSumOfAmountSql);
         preparedStatement.setInt(1, order.getWarehouseID());
@@ -136,7 +136,7 @@ public class DeliveryTransaction extends Transaction {
 
         // update customer
         String updateCustomer = "update wholesale.customer set c_balance = c_balance + ?, c_payment_cnt = c_payment_cnt + 1 \n" +
-                "where c_w_id = ? and c_d_id = ? and c_id = ?";
+                "where c_w_id = ? and c_d_id = ? and c_id = ?;";
 
         preparedStatement = connection.prepareStatement(updateCustomer);
         preparedStatement.setBigDecimal(1, totalAmount);

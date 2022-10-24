@@ -92,13 +92,13 @@ public class PaymentTransaction extends Transaction {
         sqlParameters.add(customerID);
 
         String updateCustomerBalanceSql = "update wholesale.customer set c_balance = c_balance - ? \n" +
-                "where c_w_id = ? and c_d_id = ? and c_id = ?";
+                "where c_w_id = ? and c_d_id = ? and c_id = ?;";
 
         preparedStatement = PreparedStatementUtil.getPreparedStatement(connection, updateCustomerBalanceSql, sqlParameters);
         preparedStatement.executeUpdate();
 
         String updateCustomerYtdPaymentSql = "update wholesale.customer set c_ytd_payment = c_ytd_payment + ? \n" +
-                "where c_w_id = ? and c_d_id = ? and c_id = ?";
+                "where c_w_id = ? and c_d_id = ? and c_id = ?;";
 
         preparedStatement =PreparedStatementUtil.getPreparedStatement(connection, updateCustomerYtdPaymentSql, sqlParameters);
         preparedStatement.executeUpdate();
@@ -106,7 +106,7 @@ public class PaymentTransaction extends Transaction {
         sqlParameters.remove(0);
 
         String updateCustomerPaymentCountSql = "update wholesale.customer set c_payment_cnt = c_payment_cnt + 1 \n" +
-                "where c_w_id = ? and c_d_id = ? and c_id = ?";
+                "where c_w_id = ? and c_d_id = ? and c_id = ?;";
 
         preparedStatement = PreparedStatementUtil.getPreparedStatement(connection, updateCustomerPaymentCountSql, sqlParameters);
         preparedStatement.executeUpdate();
@@ -123,7 +123,7 @@ public class PaymentTransaction extends Transaction {
                 "c_street_1, c_street_2, c_city, c_state, c_zip, \n" +
                 "c_phone, c_since, c_credit, c_credit_lim, c_discount, c_balance\n" +
                 " from wholesale.customer \n" +
-                "where c_w_id = ? and c_d_id = ? and c_id = ?";
+                "where c_w_id = ? and c_d_id = ? and c_id = ?;";
 
         preparedStatement = connection.prepareStatement(selectCustomerSql);
         preparedStatement.setInt(1, customerWarehouseID);
@@ -153,7 +153,7 @@ public class PaymentTransaction extends Transaction {
         System.out.println(customer);
 
         String selectWarehouseSql = "select w_street_1, w_street_2, w_city, w_state, w_zip \n" +
-                " from wholesale.warehouse";
+                " from wholesale.warehouse;";
         preparedStatement = connection.prepareStatement(selectWarehouseSql);
         resultSet = preparedStatement.executeQuery();
         Warehouse warehouse = new Warehouse();
@@ -167,7 +167,7 @@ public class PaymentTransaction extends Transaction {
         System.out.println(warehouse);
 
         String selectDistrictSql = "select d_street_1, d_street_2, d_city, d_state, d_zip \n" +
-                " from wholesale.district";
+                " from wholesale.district;";
         preparedStatement = connection.prepareStatement(selectDistrictSql);
         resultSet = preparedStatement.executeQuery();
         District district = new District();
