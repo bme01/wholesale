@@ -3,6 +3,7 @@ package edu.teamv.transactions.impl;
 import edu.teamv.pojo.Customer;
 import edu.teamv.transactions.Transaction;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,7 +15,8 @@ public class TopBalanceTransaction extends Transaction {
 
     private final Connection connection;
 
-    public TopBalanceTransaction(String[] parameters) {
+    public TopBalanceTransaction(String[] parameters) throws SQLException, IOException, ClassNotFoundException {
+        super(parameters);
         connection = super.getConnection();
     }
 

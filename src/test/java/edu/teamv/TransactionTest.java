@@ -3,6 +3,7 @@ package edu.teamv;
 import edu.teamv.transactions.Transaction;
 import edu.teamv.transactions.impl.DeliveryTransaction;
 import edu.teamv.transactions.impl.PaymentTransaction;
+import edu.teamv.transactions.impl.TopBalanceTransaction;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -37,5 +38,21 @@ public class TransactionTest {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Test
+    public void topBalanceTest() {
+        String[] parameters = {};
+        Transaction transaction = null;
+        try {
+            transaction = new TopBalanceTransaction(parameters);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        transaction.execute();
     }
 }
