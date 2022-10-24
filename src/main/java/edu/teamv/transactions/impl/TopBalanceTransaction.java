@@ -48,7 +48,7 @@ public class TopBalanceTransaction extends Transaction {
             // find warehouse name and district name for each customer
             String selectWDNamesSql = "select w_name, d_name \n" +
                     "from wholesale.warehouse, wholesale.district \n" +
-                    "where w_id = ? and w_id = d_w_id and d_id = ?";
+                    "where w_id = ? and d_w_id = ? and d_id = ?";
 
             String[] warehouseNames = new String[10];
             String[] districtNames = new String[10];
@@ -56,7 +56,8 @@ public class TopBalanceTransaction extends Transaction {
                 Customer customer = top10Customers.get(i);
                 PreparedStatement preparedStatement2 = connection.prepareStatement(selectWDNamesSql);
                 preparedStatement2.setInt(1, customer.getWarehouseID());
-                preparedStatement2.setInt(2, customer.getDistrictId());
+                preparedStatement2.setInt(2, customer.getWarehouseID());
+                preparedStatement2.setInt(3, customer.getDistrictId());
                 ResultSet resultSet2 = preparedStatement2.executeQuery();
                 if (resultSet2.next()) {
                     warehouseNames[i] = resultSet2.getString(1);
@@ -64,7 +65,7 @@ public class TopBalanceTransaction extends Transaction {
                 }
                 preparedStatement2.close();
             }
-            
+
             // output results
             for (int i = 0; i < 10; i++) {
                 System.out.println(top10Customers.get(i));
