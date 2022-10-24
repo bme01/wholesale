@@ -18,18 +18,18 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
-DROP DATABASE cs5424;
+DROP DATABASE cs5424_ysql;
 --
 -- TOC entry 2856 (class 1262 OID 16393)
--- Name: cs5424; Type: DATABASE; Schema: -; Owner: postgres
+-- Name: cs5424_ysql; Type: DATABASE; Schema: -; Owner: postgres
 --
 
-CREATE DATABASE cs5424 WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'Chinese (Simplified)_China.936' LC_CTYPE = 'Chinese (Simplified)_China.936';
+CREATE DATABASE cs5424_ysql WITH TEMPLATE = template0 ;
 
 
-ALTER DATABASE cs5424 OWNER TO postgres;
+ALTER DATABASE cs5424_ysql OWNER TO postgres;
 
-\connect cs5424
+\connect cs5424_ysql
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
