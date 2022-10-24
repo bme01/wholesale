@@ -153,8 +153,9 @@ public class PaymentTransaction extends Transaction {
         System.out.println(customer);
 
         String selectWarehouseSql = "select w_street_1, w_street_2, w_city, w_state, w_zip \n" +
-                " from wholesale.warehouse;";
+                " from wholesale.warehouse where w_id = ?;";
         preparedStatement = connection.prepareStatement(selectWarehouseSql);
+        preparedStatement.setInt(1, customerWarehouseID);
         resultSet = preparedStatement.executeQuery();
         Warehouse warehouse = new Warehouse();
         if (resultSet.next()) {
@@ -167,8 +168,10 @@ public class PaymentTransaction extends Transaction {
         System.out.println(warehouse);
 
         String selectDistrictSql = "select d_street_1, d_street_2, d_city, d_state, d_zip \n" +
-                " from wholesale.district;";
+                " from wholesale.district where d_w_id = ? and d_id = ?;";
         preparedStatement = connection.prepareStatement(selectDistrictSql);
+        preparedStatement.setInt(1, customerWarehouseID);
+        preparedStatement.setInt(2, customerDistrictID);
         resultSet = preparedStatement.executeQuery();
         District district = new District();
         if (resultSet.next()) {
