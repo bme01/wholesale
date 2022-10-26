@@ -20,7 +20,7 @@ public abstract class Transaction {
     public Transaction() {
     }
 
-    public abstract void execute();
+    public abstract void execute() throws SQLException;
 
     public Connection getConnection() {
         return connection;
