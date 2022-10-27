@@ -36,16 +36,11 @@ public class RelatedCustomerTransaction extends Transaction {
             System.out.println("Related Customer: ");
             HashSet<Integer> orderIds = getCustomerOrders();
             for(Integer orderId : orderIds){
-                HashSet<Integer> orderLineItems = getOrderLineItems(orderId);
-                ArrayList<Integer> orderLineItemsArray  = new ArrayList<>(orderLineItems);
-                for(int i = 0; i < orderLineItemsArray.size() - 1; i++){
-                    for(int j = i + 1; j < orderLineItemsArray.size(); j++){
-                        Integer[] relatedOrderInfo = getRelatedOrderInfo(orderLineItemsArray.get(i), orderLineItemsArray.get(j));
-                        if(relatedOrderInfo[0] != 0){
-                            printRelateCustomer(relatedOrderInfo);
-                        }
-                    }
+                Integer[] relatedOrderInfo = getRelatedOrderInfo(orderId);
+                if(relatedOrderInfo[0] != 0){
+                    printRelateCustomer(relatedOrderInfo);
                 }
+
             }
             System.out.println("======End Transaction======");
 
@@ -96,19 +91,35 @@ public class RelatedCustomerTransaction extends Transaction {
         return OrderLineItems;
     }
 
-    private Integer[] getRelatedOrderInfo(Integer item1, Integer item2) throws SQLException {
+    private Integer[] getRelatedOrderInfo(Integer orderId) throws SQLException {
         PreparedStatement preparedStatement;
         ResultSet resultSet;
-        String getCustomerInfoSql = "( select ol_w_id, ol_d_id, ol_o_id from wholesale.order_line \n" +
-                " where ol_i_id = ? and ol_w_id != ?) " +
-                " intersect " +
-                "( select ol_w_id, ol_d_id, ol_o_id from wholesale.order_line \n" +
-                " where ol_i_id = ? and ol_w_id != ?) ";
+        String getCustomerInfoSql =
+                "select \n" +
+                "    ol_w_id2, ol_d_id2, ol_o_id2 \n" +
+                "from ( \n" +
+                "    select \n" +
+                "        ol_w_id2, ol_d_id2, ol_o_id2, cn     \n" +
+                "    from \n" +
+                "    (\n" +
+                "        select\n" +
+                "            b.ol_w_id ol_w_id2,\n" +
+                "            b.ol_d_id ol_d_id2,\n" +
+                "            b.ol_o_id ol_o_id2,\n" +
+                "            count(*) cn\n" +
+                "        from wholesale.order_line a\n" +
+                "        inner join wholesale.order_line b\n" +
+                "        on a.ol_w_id = ? and a.ol_d_id = ? and a.ol_o_id = ?   \n" +
+                "        and a.ol_w_id != b.ol_w_id\n" +
+                "        and a.ol_i_id = b.ol_i_id\n" +
+                "        group by b.ol_w_id, b.ol_d_id, b.ol_o_id\n" +
+                "    )a  \n" +
+                ")b  \n" +
+                "where cn >= 2; ";
         preparedStatement = connection.prepareStatement(getCustomerInfoSql);
-        preparedStatement.setInt(1, item1);
-        preparedStatement.setInt(2, customerWarehouseID);
-        preparedStatement.setInt(3, item2);
-        preparedStatement.setInt(4, customerWarehouseID);
+        preparedStatement.setInt(1, customerWarehouseID);
+        preparedStatement.setInt(2, customerDistrictID);
+        preparedStatement.setInt(3, orderId);
         resultSet = preparedStatement.executeQuery();
         Integer[] relatedOrder = new Integer[]{0, 0, 0};
         if(resultSet.next()){
