@@ -47,6 +47,7 @@ public class TransactionTest {
         Transaction transaction = null;
         try {
             transaction = new TopBalanceTransaction(parameters);
+            transaction.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
@@ -54,7 +55,6 @@ public class TransactionTest {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        transaction.execute();
     }
 
     @Test

@@ -44,10 +44,8 @@ public class PopularItemTransaction extends Transaction {
 
             // find frequency for each popular item
             Map<String, Integer> itemCount = new HashMap<>();
-            Iterator iterator1 = orderPopularItemMap.entrySet().iterator();
-            while (iterator1.hasNext()) {
-                Map.Entry entry = (Map.Entry) iterator1.next();
-                List<PopularItem> popularItems = (List<PopularItem>) entry.getValue();
+            for (Map.Entry<Order, List<PopularItem>> orderListEntry : orderPopularItemMap.entrySet()) {
+                List<PopularItem> popularItems = (List<PopularItem>) ((Map.Entry<?, ?>) orderListEntry).getValue();
                 for (PopularItem popularItem : popularItems) {
                     if (itemCount.containsKey(popularItem.itemName)) {
                         itemCount.put(popularItem.itemName, itemCount.get(popularItem.itemName) + 1);
@@ -62,18 +60,16 @@ public class PopularItemTransaction extends Transaction {
             System.out.println(lastN);
             for (int i = 0; i < lastNOrders.size(); i++) {
                 Order order = lastNOrders.get(i);
-                System.out.println(order.getOrderID() + "," + order.getOrderEntry());
+                System.out.println(order.getOrderID() + ": " + order.getOrderEntry());
                 Customer customer = customers.get(i);
-                System.out.println(customer.getFirstName() + ", " + customer.getMiddleName() + "," + customer.getLastName());
+                System.out.println(customer.getFirstName() + ", " + customer.getMiddleName() + ", " + customer.getLastName());
                 List<PopularItem> popularItems = orderPopularItemMap.get(order);
                 for (PopularItem popularItem : popularItems) {
                     System.out.println(popularItem.itemName + "," + popularItem.quantity);
                 }
             }
-            Iterator iterator2 = itemCount.entrySet().iterator();
-            while (iterator2.hasNext()) {
-                Map.Entry entry = (Map.Entry) iterator2.next();
-                System.out.println(entry.getKey() + ", " + entry.getValue());
+            for (Map.Entry<String, Integer> stringIntegerEntry : itemCount.entrySet()) {
+                System.out.println(((Map.Entry<?, ?>) stringIntegerEntry).getKey() + ", " + ((Map.Entry<?, ?>) stringIntegerEntry).getValue());
             }
 
             // connection.commit();

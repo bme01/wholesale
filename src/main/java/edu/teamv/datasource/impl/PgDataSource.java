@@ -15,17 +15,17 @@ import java.sql.SQLException;
 public class PgDataSource implements DataSource {
     public static Connection getConnection() throws IOException, SQLException, ClassNotFoundException {
 
-        databaseProperties.load(new FileInputStream("src/main/resources/postgresql.properties"));
+        jdbcProperties.load(new FileInputStream("src/main/resources/postgresql.properties"));
 
-        poolProperties.setProperty("dataSourceClassName", databaseProperties.getProperty("driver"));
-        poolProperties.setProperty("jdbcUrl", databaseProperties.getProperty("jdbcurl"));
+        poolProperties.setProperty("dataSourceClassName", jdbcProperties.getProperty("driver"));
+        poolProperties.setProperty("jdbcUrl", jdbcProperties.getProperty("jdbcurl"));
         // The pool will create  10 connections to the servers
         poolProperties.setProperty("maximumPoolSize", String.valueOf(MAXIMUM_POOL_SIZE));
-        poolProperties.setProperty("dataSource.serverName", databaseProperties.getProperty("servername"));
-        poolProperties.setProperty("dataSource.portNumber", databaseProperties.getProperty("port"));
-        poolProperties.setProperty("dataSource.databaseName", databaseProperties.getProperty("dbname"));
-        poolProperties.setProperty("dataSource.user", databaseProperties.getProperty("user"));
-        poolProperties.setProperty("dataSource.password", databaseProperties.getProperty("password"));
+        poolProperties.setProperty("dataSource.serverName", jdbcProperties.getProperty("servername"));
+        poolProperties.setProperty("dataSource.portNumber", jdbcProperties.getProperty("port"));
+        poolProperties.setProperty("dataSource.databaseName", jdbcProperties.getProperty("dbname"));
+        poolProperties.setProperty("dataSource.user", jdbcProperties.getProperty("user"));
+        poolProperties.setProperty("dataSource.password", jdbcProperties.getProperty("password"));
 
         HikariConfig hikariconfig = new HikariConfig(poolProperties);
         hikariconfig.validate();
