@@ -84,29 +84,29 @@ public class Main {
             }
 
             case "P":{
-                String[] customeridentifier = Arrays.copyOfRange(command, 1, command.length);
-                Transaction transaction = new PaymentTransaction(customeridentifier);
+                String[] parameters = Arrays.copyOfRange(command, 1, command.length);
+                Transaction transaction = new PaymentTransaction(parameters);
                 transaction.execute();
                 break;
             }
 
             case "D":{
-                String[] customeridentifier = Arrays.copyOfRange(command, 1, command.length);
-                Transaction transaction = new DeliveryTransaction(customeridentifier);
+                String[] parameters = Arrays.copyOfRange(command, 1, command.length);
+                Transaction transaction = new DeliveryTransaction(parameters);
                 transaction.execute();
                 break;
             }
 
             case "I":{
-                String[] customeridentifier = Arrays.copyOfRange(command, 1, command.length);
-                Transaction transaction = new PopularItemTransaction(customeridentifier);
+                String[] parameters = Arrays.copyOfRange(command, 1, command.length);
+                Transaction transaction = new PopularItemTransaction(parameters);
                 transaction.execute();
                 break;
             }
 
             case "T":{
-                String[] customeridentifier = Arrays.copyOfRange(command, 1, command.length);
-                Transaction transaction = new TopBalanceTransaction(customeridentifier);
+                String[] parameters = Arrays.copyOfRange(command, 1, command.length);
+                Transaction transaction = new TopBalanceTransaction(parameters);
                 transaction.execute();
                 break;
             }
