@@ -39,10 +39,21 @@ public class PaymentTransaction extends Transaction {
     @Override
     public void execute() {
         try {
+
             updateWarehouse();
             updateDistrict();
             updateCustomer();
-            cleanup();
+
+            Customer customer = findCustomer();
+            Warehouse warehouse = findWarehouse();
+            District district = findDistrict();
+
+            // output results
+            System.out.println(customer);
+            System.out.println(warehouse);
+            System.out.println(district);
+            System.out.println(payment);
+
             // connection.commit();
             connection.close();
         } catch (Exception e) {
@@ -83,7 +94,7 @@ public class PaymentTransaction extends Transaction {
 
     private void updateCustomer() throws SQLException {
 
-        PreparedStatement preparedStatement;
+
 
         List<Object> sqlParameters = new ArrayList<>();
         sqlParameters.add(payment);
@@ -94,28 +105,72 @@ public class PaymentTransaction extends Transaction {
         String updateCustomerBalanceSql = "update wholesale.customer set c_balance = c_balance - ? \n" +
                 "where c_w_id = ? and c_d_id = ? and c_id = ?;";
 
-        preparedStatement = PreparedStatementUtil.getPreparedStatement(connection, updateCustomerBalanceSql, sqlParameters);
-        preparedStatement.executeUpdate();
+        PreparedStatement preparedStatement1 = PreparedStatementUtil.getPreparedStatement(connection, updateCustomerBalanceSql, sqlParameters);
+        preparedStatement1.executeUpdate();
+        preparedStatement1.close();
 
         String updateCustomerYtdPaymentSql = "update wholesale.customer set c_ytd_payment = c_ytd_payment + ? \n" +
                 "where c_w_id = ? and c_d_id = ? and c_id = ?;";
 
-        preparedStatement =PreparedStatementUtil.getPreparedStatement(connection, updateCustomerYtdPaymentSql, sqlParameters);
-        preparedStatement.executeUpdate();
+        PreparedStatement preparedStatement2 =PreparedStatementUtil.getPreparedStatement(connection, updateCustomerYtdPaymentSql, sqlParameters);
+        preparedStatement2.executeUpdate();
+        preparedStatement2.close();
 
         sqlParameters.remove(0);
 
         String updateCustomerPaymentCountSql = "update wholesale.customer set c_payment_cnt = c_payment_cnt + 1 \n" +
                 "where c_w_id = ? and c_d_id = ? and c_id = ?;";
 
-        preparedStatement = PreparedStatementUtil.getPreparedStatement(connection, updateCustomerPaymentCountSql, sqlParameters);
-        preparedStatement.executeUpdate();
-
-        preparedStatement.close();
+        PreparedStatement preparedStatement3 = PreparedStatementUtil.getPreparedStatement(connection, updateCustomerPaymentCountSql, sqlParameters);
+        preparedStatement3.executeUpdate();
+        preparedStatement3.close();
 
     }
 
-    private void cleanup() throws SQLException {
+    private District findDistrict() throws SQLException {
+        PreparedStatement preparedStatement;
+        ResultSet resultSet;
+        String selectDistrictSql = "select d_street_1, d_street_2, d_city, d_state, d_zip \n" +
+                " from wholesale.district where d_w_id = ? and d_id = ?;";
+        preparedStatement = connection.prepareStatement(selectDistrictSql);
+        preparedStatement.setInt(1, customerWarehouseID);
+        preparedStatement.setInt(2, customerDistrictID);
+        resultSet = preparedStatement.executeQuery();
+        District district = new District();
+        if (resultSet.next()) {
+            district.setStreet1(resultSet.getString(1));
+            district.setStreet2(resultSet.getString(2));
+            district.setCity(resultSet.getString(3));
+            district.setState(resultSet.getString(4));
+            district.setZip(resultSet.getString(5));
+        }
+        preparedStatement.close();
+        return district;
+    }
+
+    private Warehouse findWarehouse() throws SQLException {
+
+        String selectWarehouseSql = "select w_street_1, w_street_2, w_city, w_state, w_zip \n" +
+                " from wholesale.warehouse where w_id = ?;";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(selectWarehouseSql);
+        preparedStatement.setInt(1, customerWarehouseID);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+        Warehouse warehouse = new Warehouse();
+        if (resultSet.next()) {
+            warehouse.setStreet1(resultSet.getString(1));
+            warehouse.setStreet2(resultSet.getString(2));
+            warehouse.setCity(resultSet.getString(3));
+            warehouse.setState(resultSet.getString(4));
+            warehouse.setZip(resultSet.getString(5));
+        }
+
+        preparedStatement.close();
+        return warehouse;
+    }
+
+    private Customer findCustomer() throws SQLException {
         PreparedStatement preparedStatement;
         ResultSet resultSet;
 
@@ -150,38 +205,8 @@ public class PaymentTransaction extends Transaction {
             customer.setDiscount(resultSet.getBigDecimal(13));
             customer.setBalance(resultSet.getBigDecimal(14));
         }
-        System.out.println(customer);
 
-        String selectWarehouseSql = "select w_street_1, w_street_2, w_city, w_state, w_zip \n" +
-                " from wholesale.warehouse where w_id = ?;";
-        preparedStatement = connection.prepareStatement(selectWarehouseSql);
-        preparedStatement.setInt(1, customerWarehouseID);
-        resultSet = preparedStatement.executeQuery();
-        Warehouse warehouse = new Warehouse();
-        if (resultSet.next()) {
-            warehouse.setStreet1(resultSet.getString(1));
-            warehouse.setStreet2(resultSet.getString(2));
-            warehouse.setCity(resultSet.getString(3));
-            warehouse.setState(resultSet.getString(4));
-            warehouse.setZip(resultSet.getString(5));
-        }
-        System.out.println(warehouse);
-
-        String selectDistrictSql = "select d_street_1, d_street_2, d_city, d_state, d_zip \n" +
-                " from wholesale.district where d_w_id = ? and d_id = ?;";
-        preparedStatement = connection.prepareStatement(selectDistrictSql);
-        preparedStatement.setInt(1, customerWarehouseID);
-        preparedStatement.setInt(2, customerDistrictID);
-        resultSet = preparedStatement.executeQuery();
-        District district = new District();
-        if (resultSet.next()) {
-            district.setStreet1(resultSet.getString(1));
-            district.setStreet2(resultSet.getString(2));
-            district.setCity(resultSet.getString(3));
-            district.setState(resultSet.getString(4));
-            district.setZip(resultSet.getString(5));
-        }
-        System.out.println(district);
-        System.out.println(payment);
+        preparedStatement.close();
+        return customer;
     }
 }
