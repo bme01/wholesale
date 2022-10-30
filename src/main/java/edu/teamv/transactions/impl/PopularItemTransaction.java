@@ -184,7 +184,7 @@ public class PopularItemTransaction extends Transaction {
                 popularItem.quantity = resultSet.getInt(2);
                 PreparedStatement preparedStatement2 = connection.prepareStatement(selectItemNameSql);
                 preparedStatement2.setInt(1, itemID);
-                ResultSet itemResultSet = preparedStatement1.executeQuery();
+                ResultSet itemResultSet = preparedStatement2.executeQuery();
                 if (itemResultSet.next()) {
                     popularItem.itemName = resultSet.getString(1);
                 }
