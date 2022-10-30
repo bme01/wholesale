@@ -1,6 +1,10 @@
 package edu.teamv;
 
 import edu.teamv.datasource.impl.PgDataSource;
+import edu.teamv.transactions.Transaction;
+import edu.teamv.transactions.impl.DeliveryTransaction;
+import edu.teamv.transactions.impl.PaymentTransaction;
+import edu.teamv.utils.PerformanceMeasurementUtil;
 import edu.teamv.utils.PreparedStatementUtil;
 import org.junit.Test;
 
@@ -38,5 +42,14 @@ public class UtilTest {
         Connection connection = PgDataSource.getConnection();
         PreparedStatement preparedStatement = PreparedStatementUtil.getPreparedStatement(connection, getOrderInfoSql, list);
         System.out.println(preparedStatement.toString());
+    }
+
+    @Test
+    public void performanceMeasurementUtilTest() throws SQLException, IOException, ClassNotFoundException {
+        Transaction deliveryTransaction = new DeliveryTransaction(new String[]{"1", "1"});
+        Transaction paymentTransaction = new PaymentTransaction(new String[]{"1", "1", "1", "100.98"});
+        PerformanceMeasurementUtil.run(deliveryTransaction::execute);
+        PerformanceMeasurementUtil.run(paymentTransaction::execute);
+        PerformanceMeasurementUtil.report();
     }
 }

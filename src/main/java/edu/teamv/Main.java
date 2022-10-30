@@ -4,6 +4,7 @@ package edu.teamv;
 
 import edu.teamv.transactions.Transaction;
 import edu.teamv.transactions.impl.*;
+import edu.teamv.utils.PerformanceMeasurementUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,7 +18,6 @@ public class Main {
 
     public static void main(String... args) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)); //NOPMD
-        Main main = new Main();
         int NumberOfTransactions = 0;
 
         while (true) {
@@ -56,64 +56,64 @@ public class Main {
                 ArrayList<String[]> itemsInfoList = new ArrayList<>();
                 for (int i = 0; i < Integer.parseInt(command[4]); i++) {
                     itemsInfoList.add(reader.readLine().split(","));
-                    ;
                 }
                 Transaction transaction = new NewOrderTransaction(customeridentifier, itemsInfoList);
-                transaction.execute();
+                PerformanceMeasurementUtil.run(transaction::execute);
                 break;
             }
 
             case "O":{
                 String[] customeridentifier = Arrays.copyOfRange(command, 1, command.length);
                 Transaction transaction = new OrderStatusTransaction(customeridentifier);
-                transaction.execute();
+                PerformanceMeasurementUtil.run(transaction::execute);
                 break;
             }
 
             case "S":{
                 String[] parameters = Arrays.copyOfRange(command, 1, command.length);
                 Transaction transaction = new StockLevelTransaction(parameters);
-                transaction.execute();
+                PerformanceMeasurementUtil.run(transaction::execute);
                 break;
             }
             case "R":{
                 String[] customeridentifier = Arrays.copyOfRange(command, 1, command.length);
                 Transaction transaction = new RelatedCustomerTransaction(customeridentifier);
-                transaction.execute();
+                PerformanceMeasurementUtil.run(transaction::execute);
                 break;
             }
 
             case "P":{
                 String[] parameters = Arrays.copyOfRange(command, 1, command.length);
                 Transaction transaction = new PaymentTransaction(parameters);
-                transaction.execute();
+                PerformanceMeasurementUtil.run(transaction::execute);
                 break;
             }
 
             case "D":{
                 String[] parameters = Arrays.copyOfRange(command, 1, command.length);
                 Transaction transaction = new DeliveryTransaction(parameters);
-                transaction.execute();
+                PerformanceMeasurementUtil.run(transaction::execute);
                 break;
             }
 
             case "I":{
                 String[] parameters = Arrays.copyOfRange(command, 1, command.length);
                 Transaction transaction = new PopularItemTransaction(parameters);
-                transaction.execute();
+                PerformanceMeasurementUtil.run(transaction::execute);
                 break;
             }
 
             case "T":{
                 String[] parameters = Arrays.copyOfRange(command, 1, command.length);
                 Transaction transaction = new TopBalanceTransaction(parameters);
-                transaction.execute();
+                PerformanceMeasurementUtil.run(transaction::execute);
                 break;
             }
 
             default:
                 System.out.println("No such transaction: " + command);
         }
+        PerformanceMeasurementUtil.report();
     }
 }
 
