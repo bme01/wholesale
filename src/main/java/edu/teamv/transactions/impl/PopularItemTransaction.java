@@ -56,20 +56,20 @@ public class PopularItemTransaction extends Transaction {
             }
 
             // output results
-            System.out.println(warehouseID + ", " + districtID);
-            System.out.println(lastN);
+            System.out.println(String.format("District Identifier: (%s, %s)", warehouseID, districtID));
+            System.out.println(String.format("Number of Last Orders: %d", lastN));
             for (int i = 0; i < lastNOrders.size(); i++) {
                 Order order = lastNOrders.get(i);
-                System.out.println(order.getOrderID() + ": " + order.getOrderEntry());
+                System.out.println(String.format("Order ID: %d; Entry: %s", order.getOrderID(), order.getOrderEntry()) );
                 Customer customer = customers.get(i);
-                System.out.println(customer.getFirstName() + ", " + customer.getMiddleName() + ", " + customer.getLastName());
+                System.out.println(String.format("Customer Name: %s, %s, %s", customer.getFirstName(), customer.getMiddleName(), customer.getLastName()));
                 List<PopularItem> popularItems = orderPopularItemMap.get(order);
                 for (PopularItem popularItem : popularItems) {
-                    System.out.println(popularItem.itemName + "," + popularItem.quantity);
+                    System.out.println(String.format("Item Name: %s; Quantity: %d", popularItem.itemName, popularItem.quantity));
                 }
             }
-            for (Map.Entry<String, Integer> stringIntegerEntry : itemCount.entrySet()) {
-                System.out.println(((Map.Entry<?, ?>) stringIntegerEntry).getKey() + ", " + ((Map.Entry<?, ?>) stringIntegerEntry).getValue());
+            for (Map.Entry<String, Integer> entry : itemCount.entrySet()) {
+                System.out.println(((Map.Entry<?, ?>) entry).getKey() + ", " + ((Map.Entry<?, ?>) entry).getValue());
             }
 
             // connection.commit();
@@ -110,8 +110,6 @@ public class PopularItemTransaction extends Transaction {
         preparedStatement.setInt(2, districtID);
         preparedStatement.setInt(3, nextOrderID - lastN);
         preparedStatement.setInt(4, nextOrderID - 1);
-
-        System.out.println(preparedStatement);
 
         ResultSet resultSet = preparedStatement.executeQuery();
         List<Order> orders = new ArrayList<>();
@@ -159,7 +157,6 @@ public class PopularItemTransaction extends Transaction {
     private Map<Order, List<PopularItem>> findPopularItems(List<Order> lastNOrders) throws SQLException {
 
         Map<Order, List<PopularItem>> orderPopularItemMap = new HashMap<>();
-        PreparedStatement preparedStatement;
 
         String selectPopularItemsSql = "select ol_i_id, ol_quantity from wholesale.order_line \n" +
                 "where ol_w_id = ? and ol_d_id = ? and ol_o_id = ? \n" +
@@ -170,14 +167,14 @@ public class PopularItemTransaction extends Transaction {
 
         for (Order order : lastNOrders) {
 
-            preparedStatement = connection.prepareStatement(selectPopularItemsSql);
-            preparedStatement.setInt(1, warehouseID);
-            preparedStatement.setInt(2, districtID);
-            preparedStatement.setInt(3, order.getOrderID());
-            preparedStatement.setInt(4, warehouseID);
-            preparedStatement.setInt(5, districtID);
-            preparedStatement.setInt(6, order.getOrderID());
-            ResultSet resultSet = preparedStatement.executeQuery();
+            PreparedStatement preparedStatement1 = connection.prepareStatement(selectPopularItemsSql);
+            preparedStatement1.setInt(1, warehouseID);
+            preparedStatement1.setInt(2, districtID);
+            preparedStatement1.setInt(3, order.getOrderID());
+            preparedStatement1.setInt(4, warehouseID);
+            preparedStatement1.setInt(5, districtID);
+            preparedStatement1.setInt(6, order.getOrderID());
+            ResultSet resultSet = preparedStatement1.executeQuery();
 
             List<PopularItem> popularItems = new ArrayList<>();
 
@@ -185,15 +182,17 @@ public class PopularItemTransaction extends Transaction {
                 Integer itemID = resultSet.getInt(1);
                 PopularItem popularItem = new PopularItem();
                 popularItem.quantity = resultSet.getInt(2);
-                preparedStatement = connection.prepareStatement(selectItemNameSql);
-                preparedStatement.setInt(1, itemID);
-                ResultSet itemResultSet = preparedStatement.executeQuery();
+                PreparedStatement preparedStatement2 = connection.prepareStatement(selectItemNameSql);
+                preparedStatement2.setInt(1, itemID);
+                ResultSet itemResultSet = preparedStatement1.executeQuery();
                 if (itemResultSet.next()) {
                     popularItem.itemName = resultSet.getString(1);
                 }
+                preparedStatement2.close();
                 popularItems.add(popularItem);
             }
             orderPopularItemMap.put(order, popularItems);
+            preparedStatement1.close();
         }
         return orderPopularItemMap;
     }
