@@ -29,7 +29,6 @@ public class YugabyteDataSource implements DataSource {
         poolProperties.setProperty("dataSource.password", jdbcProperties.getProperty("dbPassword"));
         poolProperties.setProperty("dataSource.additionalEndpoints", jdbcProperties.getProperty("additionalEndPoints"));
 
-        System.out.println(poolProperties);
         HikariConfig hikariconfig = new HikariConfig(poolProperties);
         hikariconfig.validate();
 

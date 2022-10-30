@@ -42,7 +42,6 @@ public class PopularItemTransaction extends Transaction {
             List<Order> lastNOrders = findOrders(nextOrderID);
             List<Customer> customers = findCustomers(lastNOrders);
             List<HashSet<Integer>> itemsSetList = findItemsSet(lastNOrders);
-            System.out.println(itemsSetList);
             Map<Order, List<PopularItem>> orderPopularItemMap = findPopularItems(lastNOrders);
 
             // find frequency for each popular item
