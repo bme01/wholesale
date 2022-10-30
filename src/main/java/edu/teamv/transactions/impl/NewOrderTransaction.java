@@ -282,7 +282,8 @@ public class NewOrderTransaction extends Transaction {
                     ", customerId=" + customerID +
                     ", lastname=" + resultSet.getString(1) +
                     ", credit=" + resultSet.getString(2) +
-                    ", discount=" + resultSet.getString(3));
+                    ", discount=" + resultSet.getString(3) +
+                    "}");
         }
         String getWarehouseTaxSql = "select w_tax from wholesale.warehouse where w_id = ?";
         preparedStatement = connection.prepareStatement(getWarehouseTaxSql);
