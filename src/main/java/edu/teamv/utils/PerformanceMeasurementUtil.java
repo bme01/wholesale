@@ -20,7 +20,6 @@ public class PerformanceMeasurementUtil {
             executedTransactions++;
             watch.stop();
             double latency = (double) watch.execMs / 1_000_000_000;
-            System.out.println(latency);
             latencyList.add(latency);
             totalExecutionTime += latency ;
         } catch (Throwable t) {
