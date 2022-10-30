@@ -19,6 +19,16 @@ public class NewOrderTransaction extends Transaction {
     private final ArrayList<Integer> itemNumber;
     private final ArrayList<Integer> supplierWarehouse;
     private final ArrayList<Integer> quantity;
+
+    private  ArrayList<String> itemNames;
+
+    private BigDecimal warehouseTax;
+    private BigDecimal districtTax;
+    private BigDecimal customerDiscount;
+
+    private String customerLastName;
+
+    private String customerCredit;
     Connection connection;
 
     public NewOrderTransaction(String[] customerIdentify, ArrayList<String[]> itemsInfoList)
@@ -36,6 +46,7 @@ public class NewOrderTransaction extends Transaction {
             supplierWarehouse.add(Integer.parseInt(item[1]));
             quantity.add(Integer.parseInt(item[2]));
         }
+        itemNames = new ArrayList<>();
         connection = super.getConnection();
     }
 
@@ -56,6 +67,7 @@ public class NewOrderTransaction extends Transaction {
             BigDecimal finalAmount = calculateTotalAmount(totalAmount);
 
             printFinalInfo(N, finalAmount);
+
             connection.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -163,13 +175,14 @@ public class NewOrderTransaction extends Transaction {
     }
 
     private BigDecimal getItemAmount(Integer itemId, Integer quantityOfItem) throws SQLException {
-        String getItemPriceSql = "select i_price from wholesale.item where i_id = ?";
+        String getItemPriceSql = "select i_price, i_name from wholesale.item where i_id = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(getItemPriceSql);
         preparedStatement.setInt(1, itemId);
         ResultSet resultSet = preparedStatement.executeQuery();
         BigDecimal itemPrice = BigDecimal.valueOf(0);
         if(resultSet.next()){
             itemPrice = resultSet.getBigDecimal(1);
+            itemNames.add(resultSet.getString(2));
         }
 
         return itemPrice.multiply(BigDecimal.valueOf(quantityOfItem));
@@ -230,7 +243,6 @@ public class NewOrderTransaction extends Transaction {
         preparedStatement.setInt(1, customerWarehouseID);
         ResultSet resultSet = preparedStatement.executeQuery();
 
-        BigDecimal warehouseTax = BigDecimal.valueOf(0);
         if(resultSet.next()) {
             warehouseTax = resultSet.getBigDecimal(1);
         }
@@ -239,21 +251,22 @@ public class NewOrderTransaction extends Transaction {
         preparedStatement.setInt(1, customerWarehouseID);
         preparedStatement.setInt(2, customerDistrictID);
         resultSet = preparedStatement.executeQuery();
-        BigDecimal districtTax = BigDecimal.valueOf(0);
+
         if(resultSet.next()) {
             districtTax = resultSet.getBigDecimal(1);
         }
-        String getCustomerDiscountSql = "select c_discount from wholesale.customer \n" +
+        String getCustomerInfoSql = "select c_last, c_credit, c_discount from wholesale.customer \n" +
                 "where c_w_id = ? and c_d_id = ? and c_id = ?";
-        preparedStatement = connection.prepareStatement(getCustomerDiscountSql);
+        preparedStatement = connection.prepareStatement(getCustomerInfoSql);
         preparedStatement.setInt(1, customerWarehouseID);
         preparedStatement.setInt(2, customerDistrictID);
         preparedStatement.setInt(3, customerID);
         resultSet = preparedStatement.executeQuery();
 
-        BigDecimal customerDiscount = BigDecimal.valueOf(0);
         if(resultSet.next()) {
-                customerDiscount = resultSet.getBigDecimal(1);
+            customerLastName = resultSet.getString(1);
+            customerCredit = resultSet.getString(2);
+            customerDiscount = resultSet.getBigDecimal(3);
         }
         //TOTAL_AMOUNT = TOTAL_AMOUNT × (1 + D_TAX + W_TAX) × (1 − C_DISCOUNT)
         BigDecimal finalAmount = totalAmount.multiply(warehouseTax.add(districtTax).add(BigDecimal.valueOf(1)))
@@ -265,44 +278,19 @@ public class NewOrderTransaction extends Transaction {
 
         System.out.println("======New Order Transaction======");
 
+        //print Customer identifier (W_ID, D_ID, C_ID), lastname C_LAST, credit C_CREDIT, discount C_DISCOUNT
+        System.out.println("Customer{" +
+                " warehouseID=" + customerWarehouseID +
+                ", districtId=" + customerDistrictID +
+                ", customerId=" + customerID +
+                ", lastname=" + customerLastName +
+                ", credit=" + customerCredit +
+                ", discount=" + customerDiscount +
+                "}"
+        );
+
         PreparedStatement preparedStatement;
         ResultSet resultSet;
-        String getCustomerInfoSql = "select c_last, c_credit, c_discount from wholesale.customer \n" +
-                "where c_w_id = ? and c_d_id = ? and c_id = ?";
-        preparedStatement = connection.prepareStatement(getCustomerInfoSql);
-        preparedStatement.setInt(1, customerWarehouseID);
-        preparedStatement.setInt(2, customerDistrictID);
-        preparedStatement.setInt(3, customerID);
-        resultSet = preparedStatement.executeQuery();
-        if(resultSet.next()) {
-            //print Customer identifier (W_ID, D_ID, C_ID), lastname C_LAST, credit C_CREDIT, discount C_DISCOUNT
-            System.out.println("Customer{" +
-                    " warehouseID=" + customerWarehouseID +
-                    ", districtId=" + customerDistrictID +
-                    ", customerId=" + customerID +
-                    ", lastname=" + resultSet.getString(1) +
-                    ", credit=" + resultSet.getString(2) +
-                    ", discount=" + resultSet.getString(3) +
-                    "}");
-        }
-        String getWarehouseTaxSql = "select w_tax from wholesale.warehouse where w_id = ?";
-        preparedStatement = connection.prepareStatement(getWarehouseTaxSql);
-        preparedStatement.setInt(1, customerWarehouseID);
-        resultSet = preparedStatement.executeQuery();
-        BigDecimal warehouseTax = BigDecimal.valueOf(0);
-        if(resultSet.next()) {
-            warehouseTax = resultSet.getBigDecimal(1);
-        }
-        String getDistrictTaxSql = "select d_tax from wholesale.district where d_w_id = ? and d_id = ?";
-        preparedStatement = connection.prepareStatement(getDistrictTaxSql);
-        preparedStatement.setInt(1, customerWarehouseID);
-        preparedStatement.setInt(2, customerDistrictID);
-        resultSet = preparedStatement.executeQuery();
-
-        BigDecimal districtTax = BigDecimal.valueOf(0);
-        if(resultSet.next()){
-            districtTax = resultSet.getBigDecimal(1);
-        }
 
         System.out.println("Warehouse tax rate: " + warehouseTax +
                 ", District tax rate: " + districtTax);
@@ -322,29 +310,24 @@ public class NewOrderTransaction extends Transaction {
             System.out.println("Number of items: " + numberOfItems +
                     ", Total amount for order: " + totalAmount);
         }
-        for (int i = 0; i < numberOfItems; i++){
-            String getItemInfoSql = "select i_name from wholesale.item " +
-                    "where i_id = ?";
-            preparedStatement = connection.prepareStatement(getItemInfoSql);
-            preparedStatement.setInt(1, itemNumber.get(i));
-            resultSet = preparedStatement.executeQuery();
-            String itemName = "";
-            if(resultSet.next()){
-                itemName = resultSet.getString(1);
-            }
-            String getOrderLineAmountInfo = "select ol_amount from wholesale.order_line " +
-                    "where ol_w_id = ? and ol_d_id = ? and ol_o_id = ? and ol_number = ?" ;
 
-            preparedStatement = connection.prepareStatement(getOrderLineAmountInfo);
-            preparedStatement.setInt(1, customerWarehouseID);
-            preparedStatement.setInt(2, customerDistrictID);
-            preparedStatement.setInt(3, newOrderId);
-            preparedStatement.setInt(4, i + 1);
-            resultSet = preparedStatement.executeQuery();
-            BigDecimal orderLineAmount = BigDecimal.valueOf(0);
-            if(resultSet.next()) {
-                orderLineAmount = resultSet.getBigDecimal(1);
-            }
+        String getOrderLineAmountsInfo = "select ol_amount from wholesale.order_line " +
+                "where ol_w_id = ? and ol_d_id = ? and ol_o_id = ? order by ol_number" ;
+        preparedStatement = connection.prepareStatement(getOrderLineAmountsInfo);
+        preparedStatement.setInt(1, customerWarehouseID);
+        preparedStatement.setInt(2, customerDistrictID);
+        preparedStatement.setInt(3, newOrderId);
+        resultSet = preparedStatement.executeQuery();
+        ArrayList<BigDecimal> orderLineAmounts = new ArrayList<>();
+        while (resultSet.next()) {
+            orderLineAmounts.add(resultSet.getBigDecimal(1));
+        }
+
+        for (int i = 0; i < numberOfItems; i++){
+
+            String itemName = itemNames.get(i);
+            BigDecimal orderLineAmount = orderLineAmounts.get(i);
+
             String getStockQuantitySql = "select s_quantity \n" +
                     " from wholesale.stock \n" +
                     " where s_w_id = ? and s_i_id = ?";
