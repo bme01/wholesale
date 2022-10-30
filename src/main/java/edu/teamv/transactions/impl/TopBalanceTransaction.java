@@ -70,9 +70,9 @@ public class TopBalanceTransaction extends Transaction {
 
             // output results
             for (int i = 0; i < 10; i++) {
-                System.out.println(top10Customers.get(i));
-                System.out.println(warehouseNames[i]);
-                System.out.println(districtNames[i]);
+                Customer customer = top10Customers.get(i);
+                System.out.println(String.format("Name of Customer: %s, %s, %s; Balance: %f; Warehouse Name: %s; District Name: %s",
+                        customer.getFirstName(), customer.getMiddleName(), customer.getLastName(), customer.getBalance(), warehouseNames[i], districtNames[i]));
             }
 
         } catch (SQLException e) {
