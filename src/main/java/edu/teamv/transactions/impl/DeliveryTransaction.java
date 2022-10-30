@@ -29,12 +29,12 @@ public class DeliveryTransaction extends Transaction {
             List<Order> orders = findOrders();
             int count = 1;
             for (Order order : orders) {
-                System.out.println("Order detail: " + order);
+                // System.out.println("Order detail: " + order);
                 updateCarrier(order);
                 updateOrderLines(order);
                 updateCustomer(order);
-                System.out.println("Order " + count + " has been delivered at " + new Timestamp(System.currentTimeMillis()));
-                System.out.println("________________________________");
+                // System.out.println("Order " + count + " has been delivered at " + new Timestamp(System.currentTimeMillis()));
+                // System.out.println("________________________________");
                 count++;
             }
 
@@ -118,28 +118,30 @@ public class DeliveryTransaction extends Transaction {
         String selectSumOfAmountSql = "select sum(ol_amount) from wholesale.order_line \n" +
                 "where ol_w_id = ? and ol_d_id = ? and ol_o_id = ?;";
 
-        PreparedStatement preparedStatement = connection.prepareStatement(selectSumOfAmountSql);
-        preparedStatement.setInt(1, order.getWarehouseID());
-        preparedStatement.setInt(2, order.getDistrictID());
-        preparedStatement.setInt(3, order.getOrderID());
+        PreparedStatement preparedStatement1 = connection.prepareStatement(selectSumOfAmountSql);
+        preparedStatement1.setInt(1, order.getWarehouseID());
+        preparedStatement1.setInt(2, order.getDistrictID());
+        preparedStatement1.setInt(3, order.getOrderID());
 
-        ResultSet resultSet = preparedStatement.executeQuery();
+        ResultSet resultSet = preparedStatement1.executeQuery();
         BigDecimal totalAmount = BigDecimal.valueOf(0);
         if (resultSet.next()) {
             totalAmount = resultSet.getBigDecimal(1);
         }
-        System.out.println("total amount is " + totalAmount);
+        preparedStatement1.close();
+        // System.out.println("total amount is " + totalAmount);
 
         // update customer
         String updateCustomer = "update wholesale.customer set c_balance = c_balance + ?, c_payment_cnt = c_payment_cnt + 1 \n" +
                 "where c_w_id = ? and c_d_id = ? and c_id = ?;";
 
-        preparedStatement = connection.prepareStatement(updateCustomer);
-        preparedStatement.setBigDecimal(1, totalAmount);
-        preparedStatement.setInt(2, order.getWarehouseID());
-        preparedStatement.setInt(3, order.getDistrictID());
-        preparedStatement.setInt(4, order.getCustomerID());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
+
+        PreparedStatement preparedStatement2 = connection.prepareStatement(updateCustomer);
+        preparedStatement2.setBigDecimal(1, totalAmount);
+        preparedStatement2.setInt(2, order.getWarehouseID());
+        preparedStatement2.setInt(3, order.getDistrictID());
+        preparedStatement2.setInt(4, order.getCustomerID());
+        preparedStatement2.executeUpdate();
+        preparedStatement2.close();
     }
 }

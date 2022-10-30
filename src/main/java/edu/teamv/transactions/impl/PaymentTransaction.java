@@ -49,10 +49,18 @@ public class PaymentTransaction extends Transaction {
             District district = findDistrict();
 
             // output results
-            System.out.println(customer);
-            System.out.println(warehouse);
-            System.out.println(district);
-            System.out.println(payment);
+            System.out.println(String.format("Customer Identifier: (%d, %d, %d); Name: %s, %s, %s; " +
+                            "Address: %s, %s, %s, %s, %s; Phone: %s; " +
+                            "Since: %s; Credit: %s; Credit Limit: %.2f, Discount: %.4f, Balance: %.2f",
+                    customer.getWarehouseID(), customer.getDistrictId(), customer.getCustomerId(),
+                    customer.getFirstName(), customer.getMiddleName(), customer.getLastName(),
+                    customer.getStreet1(), customer.getStreet2(), customer.getCity(), customer.getState(), customer.getZip(), customer.getPhone(),
+                    customer.getSince(), customer.getCredit(), customer.getCreditLimit(), customer.getDiscount(), customer.getBalance()));
+            System.out.println(String.format("Warehouse Address: %s, %s, %s, %s, %s",
+                    warehouse.getStreet1(), warehouse.getStreet2(), warehouse.getCity(), warehouse.getState(), warehouse.getZip()));
+            System.out.println(String.format("District Address: %s, %s, %s, %s, %s",
+                    district.getStreet1(), district.getStreet2(), district.getCity(), district.getState(), district.getZip()));
+            System.out.println(String.format("Payment Amount: %.2f", payment));
 
             // connection.commit();
             connection.close();
@@ -95,7 +103,6 @@ public class PaymentTransaction extends Transaction {
     private void updateCustomer() throws SQLException {
 
 
-
         List<Object> sqlParameters = new ArrayList<>();
         sqlParameters.add(payment);
         sqlParameters.add(customerID);
@@ -112,7 +119,7 @@ public class PaymentTransaction extends Transaction {
         String updateCustomerYtdPaymentSql = "update wholesale.customer set c_ytd_payment = c_ytd_payment + ? \n" +
                 "where c_w_id = ? and c_d_id = ? and c_id = ?;";
 
-        PreparedStatement preparedStatement2 =PreparedStatementUtil.getPreparedStatement(connection, updateCustomerYtdPaymentSql, sqlParameters);
+        PreparedStatement preparedStatement2 = PreparedStatementUtil.getPreparedStatement(connection, updateCustomerYtdPaymentSql, sqlParameters);
         preparedStatement2.executeUpdate();
         preparedStatement2.close();
 
@@ -186,7 +193,7 @@ public class PaymentTransaction extends Transaction {
         preparedStatement.setInt(3, customerID);
         resultSet = preparedStatement.executeQuery();
         Customer customer = new Customer();
-        if (resultSet.next()){
+        if (resultSet.next()) {
             customer.setWarehouseID(customerWarehouseID);
             customer.setDistrictId(customerDistrictID);
             customer.setCustomerId(customerID);
