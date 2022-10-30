@@ -2,10 +2,8 @@ package edu.teamv;
 
 
 
-import edu.teamv.transactions.impl.NewOrderTransaction;
-import edu.teamv.transactions.impl.OrderStatusTransaction;
-import edu.teamv.transactions.impl.RelatedCustomerTransaction;
-import edu.teamv.transactions.impl.StockLevelTransaction;
+import edu.teamv.transactions.Transaction;
+import edu.teamv.transactions.impl.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,12 +12,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Shell {
+public class Main {
 
 
     public static void main(String... args) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)); //NOPMD
-        Shell shell = new Shell();
+        Main main = new Main();
         int NumberOfTransactions = 0;
 
         while (true) {
@@ -60,30 +58,61 @@ public class Shell {
                     itemsInfoList.add(reader.readLine().split(","));
                     ;
                 }
-                NewOrderTransaction newOrderTransaction = new NewOrderTransaction(customeridentifier, itemsInfoList);
-                newOrderTransaction.execute();
+                Transaction transaction = new NewOrderTransaction(customeridentifier, itemsInfoList);
+                transaction.execute();
                 break;
             }
 
             case "O":{
                 String[] customeridentifier = Arrays.copyOfRange(command, 1, command.length);
-                OrderStatusTransaction orderStatusTransaction = new OrderStatusTransaction(customeridentifier);
-                orderStatusTransaction.execute();
+                Transaction transaction = new OrderStatusTransaction(customeridentifier);
+                transaction.execute();
                 break;
             }
 
             case "S":{
                 String[] parameters = Arrays.copyOfRange(command, 1, command.length);
-                StockLevelTransaction stockLevelTransaction = new StockLevelTransaction(parameters);
-                stockLevelTransaction.execute();
+                Transaction transaction = new StockLevelTransaction(parameters);
+                transaction.execute();
                 break;
             }
             case "R":{
                 String[] customeridentifier = Arrays.copyOfRange(command, 1, command.length);
-                RelatedCustomerTransaction relatedCustomerTransaction = new RelatedCustomerTransaction(customeridentifier);
-                relatedCustomerTransaction.execute();
+                Transaction transaction = new RelatedCustomerTransaction(customeridentifier);
+                transaction.execute();
                 break;
             }
+
+            case "P":{
+                String[] customeridentifier = Arrays.copyOfRange(command, 1, command.length);
+                Transaction transaction = new PaymentTransaction(customeridentifier);
+                transaction.execute();
+                break;
+            }
+
+            case "D":{
+                String[] customeridentifier = Arrays.copyOfRange(command, 1, command.length);
+                Transaction transaction = new DeliveryTransaction(customeridentifier);
+                transaction.execute();
+                break;
+            }
+
+            case "I":{
+                String[] customeridentifier = Arrays.copyOfRange(command, 1, command.length);
+                Transaction transaction = new PopularItemTransaction(customeridentifier);
+                transaction.execute();
+                break;
+            }
+
+            case "T":{
+                String[] customeridentifier = Arrays.copyOfRange(command, 1, command.length);
+                Transaction transaction = new TopBalanceTransaction(customeridentifier);
+                transaction.execute();
+                break;
+            }
+
+            default:
+                System.out.println("No such transaction: " + command);
         }
     }
 }

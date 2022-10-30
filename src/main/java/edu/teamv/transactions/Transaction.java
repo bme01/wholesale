@@ -14,7 +14,7 @@ public abstract class Transaction {
 
     public Transaction(String[] parameters) throws SQLException, IOException, ClassNotFoundException {
         this.parameters = parameters;
-        this.connection = YugabyteDataSource.getConnection();
+        this.connection = PgDataSource.getConnection();
         connection.setAutoCommit(false);
     }
 

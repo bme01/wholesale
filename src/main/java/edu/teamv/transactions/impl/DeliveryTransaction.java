@@ -37,7 +37,7 @@ public class DeliveryTransaction extends Transaction {
                 System.out.println("________________________________");
                 count++;
             }
-            connection.commit();
+            // connection.commit();
             connection.close();
         } catch (Exception e) {
             e.printStackTrace();
