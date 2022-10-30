@@ -26,7 +26,7 @@ public class DeliveryTransaction extends Transaction {
     @Override
     public void execute() {
         try {
-            List<Order> orders = selectOrders();
+            List<Order> orders = findOrders();
             int count = 1;
             for (Order order : orders) {
                 System.out.println("Order detail: " + order);
@@ -37,6 +37,7 @@ public class DeliveryTransaction extends Transaction {
                 System.out.println("________________________________");
                 count++;
             }
+
             // connection.commit();
             connection.close();
         } catch (Exception e) {
@@ -50,7 +51,7 @@ public class DeliveryTransaction extends Transaction {
     }
 
     // select orders of each of the 10 districts from wholesale.order
-    private List<Order> selectOrders() throws SQLException {
+    private List<Order> findOrders() throws SQLException {
 
         String getOrderInfoSql = "select o_id, o_c_id from wholesale.order\n" +
                 "where o_w_id = ? and o_d_id = ?\n" +
@@ -76,10 +77,8 @@ public class DeliveryTransaction extends Transaction {
                 order.setCustomerID(resultSet.getInt(2));
                 order.setCarrierID(carrierID);
                 orders.add(order);
-                // System.out.println("looping....");
             }
         }
-        // System.out.println("loop ended.");
         preparedStatement.close();
         return orders;
     }
@@ -94,7 +93,6 @@ public class DeliveryTransaction extends Transaction {
         preparedStatement.setInt(3, order.getDistrictID());
         preparedStatement.setInt(4, order.getOrderID());
         preparedStatement.executeUpdate();
-        System.out.println("updateCarrierSql is executed at " + new Timestamp(System.currentTimeMillis()));
         preparedStatement.close();
     }
 
@@ -110,7 +108,6 @@ public class DeliveryTransaction extends Transaction {
         preparedStatement.setInt(3, order.getDistrictID());
         preparedStatement.setInt(4, order.getOrderID());
         preparedStatement.executeUpdate();
-        System.out.println("updateOrderLineTimestampSql is executed at " + new Timestamp(System.currentTimeMillis()));
         preparedStatement.close();
 
     }
@@ -127,7 +124,6 @@ public class DeliveryTransaction extends Transaction {
         preparedStatement.setInt(3, order.getOrderID());
 
         ResultSet resultSet = preparedStatement.executeQuery();
-        System.out.println("selectSumOfAmountSql is executed at " + new Timestamp(System.currentTimeMillis()));
         BigDecimal totalAmount = BigDecimal.valueOf(0);
         if (resultSet.next()) {
             totalAmount = resultSet.getBigDecimal(1);
@@ -144,7 +140,6 @@ public class DeliveryTransaction extends Transaction {
         preparedStatement.setInt(3, order.getDistrictID());
         preparedStatement.setInt(4, order.getCustomerID());
         preparedStatement.executeUpdate();
-        System.out.println("updateCustomer is executed at " + new Timestamp(System.currentTimeMillis()));
         preparedStatement.close();
     }
 }
