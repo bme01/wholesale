@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public class StockLevelTransaction extends Transaction {
@@ -82,22 +83,25 @@ public class StockLevelTransaction extends Transaction {
         }
         return itemSet;
     }
+
     private Integer getItemNumberBelowThread(HashSet<Integer> itemSet) throws SQLException {
         Integer totalNum = 0;
         String getItemIdSql = "select s_quantity \n" +
                 " from wholesale.stock \n"+
-                " where s_w_id = ? and s_i_id = ? ;";
+                " where s_w_id = ? and (  ";
+        ResultSet resultSet;
+        ArrayList<String> conditions = new ArrayList<>();
+        for(Integer item : itemSet){
+            conditions.add("( s_i_id = " + item +" )");
+        }
+        getItemIdSql = getItemIdSql + String.join(" or ", conditions) + ");";
         PreparedStatement preparedStatement = connection.prepareStatement(getItemIdSql);
         preparedStatement.setInt(1, warehouseID);
-        ResultSet resultSet;
-        for(Integer item : itemSet){
-            preparedStatement.setInt(2, item);
-            resultSet = preparedStatement.executeQuery();
-            if(resultSet.next()){
-                Integer stockQuantity = resultSet.getInt(1);
-                if(stockQuantity < stockThreshold){
-                    totalNum++;
-                }
+        resultSet = preparedStatement.executeQuery();
+        while(resultSet.next()){
+            Integer stockQuantity = resultSet.getInt(1);
+            if(stockQuantity < stockThreshold){
+                totalNum++;
             }
         }
         return totalNum;
