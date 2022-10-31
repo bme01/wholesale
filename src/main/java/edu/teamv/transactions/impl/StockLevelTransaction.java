@@ -81,6 +81,7 @@ public class StockLevelTransaction extends Transaction {
         while (resultSet.next()){
             itemSet.add(resultSet.getInt(1));
         }
+        preparedStatement.close();
         return itemSet;
     }
 
@@ -104,6 +105,7 @@ public class StockLevelTransaction extends Transaction {
                 totalNum++;
             }
         }
+        preparedStatement.close();
         return totalNum;
 
     }

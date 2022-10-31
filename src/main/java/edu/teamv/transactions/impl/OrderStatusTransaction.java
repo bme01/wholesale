@@ -66,6 +66,7 @@ public class OrderStatusTransaction extends Transaction {
                     " " + resultSet.getString(3) +
                     ", balance: " + resultSet.getBigDecimal(4));
         }
+        preparedStatement.close();
     }
 
 
@@ -89,8 +90,11 @@ public class OrderStatusTransaction extends Transaction {
             System.out.println("Order number " + resultSet.getInt(1) +
                     ", Entry date and time " + resultSet.getTimestamp(2) +
                     ", Carrier identifier " + resultSet.getObject(3));
-            return resultSet.getInt(1);
+            Integer res = resultSet.getInt(1);
+            preparedStatement.close();
+            return res;
         }
+        preparedStatement.close();
         return 0;
     }
 
@@ -112,6 +116,7 @@ public class OrderStatusTransaction extends Transaction {
                     ",  Total price for ordered item " + resultSet.getInt(4) +
                     ",  Data and time of delivery " + resultSet.getObject(5));
         }
+        preparedStatement.close();
     }
 
 }
