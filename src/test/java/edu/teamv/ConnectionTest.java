@@ -43,23 +43,23 @@ public class ConnectionTest {
         }
     }
 
-    @Test
-    public void yugabyteDataSourseTest1() {
-        try {
-            Connection connection = YugabyteDataSource.getConnection();
-            String sql = "select * from wholesale.warehouse";
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
-            while (resultSet.next()) {
-                int id = resultSet.getInt(1);
-                String name = resultSet.getString(2);
-                System.out.println("id: " + id + " " + "name: " + name);
-            }
-
-        } catch (IOException | SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    // @Test
+    // public void yugabyteDataSourseTest1() {
+    //     try {
+    //         Connection connection = YugabyteDataSource.getConnection();
+    //         String sql = "select * from wholesale.warehouse";
+    //         Statement statement = connection.createStatement();
+    //         ResultSet resultSet = statement.executeQuery(sql);
+    //         while (resultSet.next()) {
+    //             int id = resultSet.getInt(1);
+    //             String name = resultSet.getString(2);
+    //             System.out.println("id: " + id + " " + "name: " + name);
+    //         }
+    //
+    //     } catch (IOException | SQLException e) {
+    //         throw new RuntimeException(e);
+    //     }
+    // }
 
     @Test
     public void yugabyteDataSourseTest2() throws SQLException {

@@ -1,5 +1,6 @@
 package edu.teamv.transactions;
 
+import com.zaxxer.hikari.HikariDataSource;
 import edu.teamv.datasource.impl.PgDataSource;
 import edu.teamv.datasource.impl.YugabyteDataSource;
 
@@ -14,7 +15,7 @@ public abstract class Transaction {
 
     public Transaction(String[] parameters) throws SQLException, IOException, ClassNotFoundException {
         this.parameters = parameters;
-        this.connection = YugabyteDataSource.getConnection();
+        connection = YugabyteDataSource.getConnection();
         connection.setAutoCommit(false);
     }
 
