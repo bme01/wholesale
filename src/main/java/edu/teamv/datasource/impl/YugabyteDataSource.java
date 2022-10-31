@@ -4,20 +4,21 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import edu.teamv.datasource.DataSource;
 
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 /*
-* data source for yugabyte db
-* */
+ * data source for yugabyte db
+ * */
 
 public class YugabyteDataSource implements DataSource {
     // @Override
     public static Connection getConnection() throws IOException, SQLException {
 
-        jdbcProperties.load(new FileInputStream("src/main/resources/app.properties"));
+        InputStream inputStream = YugabyteDataSource.class.getClassLoader().getResourceAsStream("app.properties");
+        jdbcProperties.load(inputStream);
 
         poolProperties.setProperty("dataSourceClassName", jdbcProperties.getProperty("driver"));
         // The pool will create  10 connections to the servers

@@ -1,6 +1,7 @@
 package edu.teamv;
 
 import edu.teamv.datasource.impl.PgDataSource;
+import edu.teamv.datasource.impl.YugabyteDataSource;
 import edu.teamv.transactions.Transaction;
 import edu.teamv.transactions.impl.DeliveryTransaction;
 import edu.teamv.transactions.impl.PaymentTransaction;
@@ -9,12 +10,14 @@ import edu.teamv.utils.PreparedStatementUtil;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class UtilTest {
     @Test
@@ -51,5 +54,13 @@ public class UtilTest {
         PerformanceMeasurementUtil.run(deliveryTransaction::execute);
         PerformanceMeasurementUtil.run(paymentTransaction::execute);
         PerformanceMeasurementUtil.report();
+    }
+
+    @Test
+    public void resourceTest() throws IOException {
+        InputStream inputStream = new YugabyteDataSource().getClass().getClassLoader().getResourceAsStream("app.properties");
+        Properties properties = new Properties();
+        properties.load(inputStream);
+        System.out.println(properties);
     }
 }
