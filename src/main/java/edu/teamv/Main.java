@@ -1,7 +1,6 @@
 package edu.teamv;
 
 
-
 import edu.teamv.transactions.Transaction;
 import edu.teamv.transactions.impl.*;
 import edu.teamv.utils.PerformanceMeasurementUtil;
@@ -15,42 +14,35 @@ import java.util.Arrays;
 
 public class Main {
 
-
     public static void main(String... args) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)); //NOPMD
         int NumberOfTransactions = 0;
+        String commandString;
 
-        while (true) {
-            try {
-                String commandString;
-                try {
-                    commandString = reader.readLine();
-
-                } catch (IOException e) {
-                    reader.close();
-                    return; // Streams are closed, terminate process
-                }
-
-                if (commandString == null) {
-                    reader.close();
-                    System.out.println("Summary: ");
-                    System.out.println("Total number of transactions processed: " + NumberOfTransactions);
-                    return; // EOF found, Streams are closed, terminate process
-                }
+        try {
+            while ((commandString = reader.readLine()) != null) {
 
                 parseAndEvaluate(commandString, reader);
-                NumberOfTransactions ++;
+                NumberOfTransactions++;
 
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
             }
+            reader.close();
+            System.out.println("Summary: ");
+            System.out.println("Total number of transactions processed: " + NumberOfTransactions);
+            return; // EOF found, Streams are closed, terminate process
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return; // Streams are closed, terminate process
+
+        } finally {
+            PerformanceMeasurementUtil.report();
         }
     }
 
     static public void parseAndEvaluate(String commandString, BufferedReader reader)
             throws IOException, SQLException, ClassNotFoundException {
         String[] command = commandString.split(",");
-        switch (command[0]){
+        switch (command[0]) {
             case "N": {
                 String[] customeridentifier = Arrays.copyOfRange(command, 1, command.length);
                 ArrayList<String[]> itemsInfoList = new ArrayList<>();
@@ -62,48 +54,49 @@ public class Main {
                 break;
             }
 
-            case "O":{
+            case "O": {
                 String[] customeridentifier = Arrays.copyOfRange(command, 1, command.length);
                 Transaction transaction = new OrderStatusTransaction(customeridentifier);
                 PerformanceMeasurementUtil.run(transaction::execute);
                 break;
             }
 
-            case "S":{
+            case "S": {
                 String[] parameters = Arrays.copyOfRange(command, 1, command.length);
                 Transaction transaction = new StockLevelTransaction(parameters);
                 PerformanceMeasurementUtil.run(transaction::execute);
                 break;
             }
-            case "R":{
+            case "R": {
                 String[] customeridentifier = Arrays.copyOfRange(command, 1, command.length);
-                Transaction transaction = new RelatedCustomerTransaction(customeridentifier);
-                PerformanceMeasurementUtil.run(transaction::execute);
+                System.out.println("Related customer transaction skipped: " + Arrays.toString(customeridentifier));
+                // Transaction transaction = new RelatedCustomerTransaction(customeridentifier);
+                // PerformanceMeasurementUtil.run(transaction::execute);
                 break;
             }
 
-            case "P":{
+            case "P": {
                 String[] parameters = Arrays.copyOfRange(command, 1, command.length);
                 Transaction transaction = new PaymentTransaction(parameters);
                 PerformanceMeasurementUtil.run(transaction::execute);
                 break;
             }
 
-            case "D":{
+            case "D": {
                 String[] parameters = Arrays.copyOfRange(command, 1, command.length);
                 Transaction transaction = new DeliveryTransaction(parameters);
                 PerformanceMeasurementUtil.run(transaction::execute);
                 break;
             }
 
-            case "I":{
+            case "I": {
                 String[] parameters = Arrays.copyOfRange(command, 1, command.length);
                 Transaction transaction = new PopularItemTransaction(parameters);
                 PerformanceMeasurementUtil.run(transaction::execute);
                 break;
             }
 
-            case "T":{
+            case "T": {
                 String[] parameters = Arrays.copyOfRange(command, 1, command.length);
                 Transaction transaction = new TopBalanceTransaction(parameters);
                 PerformanceMeasurementUtil.run(transaction::execute);

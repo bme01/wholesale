@@ -57,7 +57,7 @@ public class TransactionTest {
 
     @Test
     public void popularItemTest () {
-        String[] parameters = {"1", "1", "10"};
+        String[] parameters = {"1", "3", "49"};
         try {
             Transaction transaction = new PopularItemTransaction(parameters);
             transaction.execute();

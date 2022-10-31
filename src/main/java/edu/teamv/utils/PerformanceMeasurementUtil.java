@@ -21,10 +21,14 @@ public class PerformanceMeasurementUtil {
             watch.stop();
             double latency = (double) watch.execMs / 1_000_000_000;
             latencyList.add(latency);
-            totalExecutionTime += latency ;
+            totalExecutionTime += latency;
+            System.out.println("===========================");
+            System.out.println("Latency: " + latency);
+            System.out.println("Executed Transactions: " + executedTransactions);
+            System.out.println("===========================");
         } catch (Throwable t) {
             failedTransactions++;
-            throw new RuntimeException(t);
+            // throw new RuntimeException(t);
         }
     }
 
@@ -51,8 +55,8 @@ public class PerformanceMeasurementUtil {
         double median = latencyList.get(executedTransactions / 2);
         double percentile95 = latencyList.get((int) (executedTransactions * 0.95));
         double percentile99 = latencyList.get((int) (executedTransactions * 0.99));
-        System.out.println(String.format("%d, %.2f, %.2f, %.2f, %.2f, %.2f",
-                executedTransactions, throughput, average, median, percentile95, percentile99));
+        System.out.println(String.format("%d, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f",
+                executedTransactions, totalExecutionTime, throughput, average, median, percentile95, percentile99));
     }
 
     @FunctionalInterface
