@@ -71,6 +71,7 @@ public class RelatedCustomerTransaction extends Transaction {
         while (resultSet.next()){
             orderIds.add(resultSet.getInt(1));
         }
+        preparedStatement.close();
         return orderIds;
     }
 
@@ -88,6 +89,7 @@ public class RelatedCustomerTransaction extends Transaction {
         while (resultSet.next()){
             OrderLineItems.add(resultSet.getInt(1));
         }
+        preparedStatement.close();
         return OrderLineItems;
     }
 
@@ -127,6 +129,7 @@ public class RelatedCustomerTransaction extends Transaction {
             relatedOrder[1] = resultSet.getInt(2);
             relatedOrder[2] = resultSet.getInt(3);
         }
+        preparedStatement.close();
         return relatedOrder;
 
     }
@@ -145,6 +148,7 @@ public class RelatedCustomerTransaction extends Transaction {
         if(resultSet.next()){
             RelatedCustomerId = resultSet.getInt(1);
         }
+        preparedStatement.close();
 
         System.out.println("Customer identifier{" +
                 " warehouseID=" + relatedOrderInfo[0] +

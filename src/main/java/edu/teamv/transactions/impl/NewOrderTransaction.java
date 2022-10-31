@@ -184,6 +184,7 @@ public class NewOrderTransaction extends Transaction {
             itemPrice = resultSet.getBigDecimal(1);
             itemNames.add(resultSet.getString(2));
         }
+        preparedStatement.close();
 
         return itemPrice.multiply(BigDecimal.valueOf(quantityOfItem));
     }
@@ -271,6 +272,7 @@ public class NewOrderTransaction extends Transaction {
         //TOTAL_AMOUNT = TOTAL_AMOUNT × (1 + D_TAX + W_TAX) × (1 − C_DISCOUNT)
         BigDecimal finalAmount = totalAmount.multiply(warehouseTax.add(districtTax).add(BigDecimal.valueOf(1)))
                 .multiply(customerDiscount.negate().add(BigDecimal.valueOf(1)));
+        preparedStatement.close();
         return finalAmount;
     }
 
@@ -348,6 +350,7 @@ public class NewOrderTransaction extends Transaction {
                     ", Stock Quantity: " + stockQuantity);
 
         }
+        preparedStatement.close();
 
 
     }
