@@ -1,4 +1,4 @@
-package edu.teamv.datasource;
+package edu.teamv.utils.datasource;
 
 import java.util.Properties;
 

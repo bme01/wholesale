@@ -1,7 +1,7 @@
 package edu.teamv;
 
-import edu.teamv.datasource.impl.PgDataSource;
-import edu.teamv.datasource.impl.YugabyteDataSource;
+import edu.teamv.utils.datasource.impl.PgDataSource;
+import edu.teamv.utils.datasource.impl.YugabyteDataSource;
 import edu.teamv.transactions.Transaction;
 import edu.teamv.transactions.impl.DeliveryTransaction;
 import edu.teamv.transactions.impl.PaymentTransaction;

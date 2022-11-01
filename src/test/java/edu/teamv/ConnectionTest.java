@@ -2,8 +2,7 @@ package edu.teamv;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import edu.teamv.datasource.impl.PgDataSource;
-import edu.teamv.datasource.impl.YugabyteDataSource;
+import edu.teamv.utils.datasource.impl.PgDataSource;
 import org.junit.Test;
 
 import java.io.FileInputStream;

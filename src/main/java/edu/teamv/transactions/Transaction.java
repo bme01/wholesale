@@ -1,8 +1,6 @@
 package edu.teamv.transactions;
 
-import com.zaxxer.hikari.HikariDataSource;
-import edu.teamv.datasource.impl.PgDataSource;
-import edu.teamv.datasource.impl.YugabyteDataSource;
+import edu.teamv.utils.datasource.impl.YugabyteDataSource;
 
 import java.io.IOException;
 import java.sql.Connection;

@@ -1,8 +1,8 @@
-package edu.teamv.datasource.impl;
+package edu.teamv.utils.datasource.impl;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import edu.teamv.datasource.DataSource;
+import edu.teamv.utils.datasource.DataSource;
 
 import java.io.FileInputStream;
 import java.io.IOException;
