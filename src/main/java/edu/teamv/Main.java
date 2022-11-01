@@ -14,6 +14,7 @@ import java.util.Arrays;
 
 public class Main {
 
+
     public static void main(String... args) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)); //NOPMD
         int NumberOfTransactions = 0;
@@ -32,11 +33,12 @@ public class Main {
             return; // EOF found, Streams are closed, terminate process
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            return; // Streams are closed, terminate process
+            // return; // Streams are closed, terminate process
 
         } finally {
-            PerformanceMeasurementUtil.report();
+            PerformanceMeasurementUtil.detailedReport();
         }
+        // PerformanceMeasurementUtil.detailedReport();
     }
 
     static public void parseAndEvaluate(String commandString, BufferedReader reader)
@@ -50,21 +52,24 @@ public class Main {
                     itemsInfoList.add(reader.readLine().split(","));
                 }
                 Transaction transaction = new NewOrderTransaction(customeridentifier, itemsInfoList);
-                PerformanceMeasurementUtil.run(transaction::execute);
+                // PerformanceMeasurementUtil.run(transaction::execute);
+                PerformanceMeasurementUtil.performanceTest(transaction);
                 break;
             }
 
             case "O": {
                 String[] customeridentifier = Arrays.copyOfRange(command, 1, command.length);
                 Transaction transaction = new OrderStatusTransaction(customeridentifier);
-                PerformanceMeasurementUtil.run(transaction::execute);
+                // PerformanceMeasurementUtil.run(transaction::execute);
+                PerformanceMeasurementUtil.performanceTest(transaction);
                 break;
             }
 
             case "S": {
                 String[] parameters = Arrays.copyOfRange(command, 1, command.length);
                 Transaction transaction = new StockLevelTransaction(parameters);
-                PerformanceMeasurementUtil.run(transaction::execute);
+                // PerformanceMeasurementUtil.run(transaction::execute);
+                PerformanceMeasurementUtil.performanceTest(transaction);
                 break;
             }
             case "R": {
@@ -72,34 +77,39 @@ public class Main {
                 System.out.println("Related customer transaction skipped: " + Arrays.toString(customeridentifier));
                 // Transaction transaction = new RelatedCustomerTransaction(customeridentifier);
                 // PerformanceMeasurementUtil.run(transaction::execute);
+                // PerformanceMeasurementUtil.performanceTest(transaction);
                 break;
             }
 
             case "P": {
                 String[] parameters = Arrays.copyOfRange(command, 1, command.length);
                 Transaction transaction = new PaymentTransaction(parameters);
-                PerformanceMeasurementUtil.run(transaction::execute);
+                // PerformanceMeasurementUtil.run(transaction::execute);
+                PerformanceMeasurementUtil.performanceTest(transaction);
                 break;
             }
 
             case "D": {
                 String[] parameters = Arrays.copyOfRange(command, 1, command.length);
                 Transaction transaction = new DeliveryTransaction(parameters);
-                PerformanceMeasurementUtil.run(transaction::execute);
+                // PerformanceMeasurementUtil.run(transaction::execute);
+                PerformanceMeasurementUtil.performanceTest(transaction);
                 break;
             }
 
             case "I": {
                 String[] parameters = Arrays.copyOfRange(command, 1, command.length);
                 Transaction transaction = new PopularItemTransaction(parameters);
-                PerformanceMeasurementUtil.run(transaction::execute);
+                // PerformanceMeasurementUtil.run(transaction::execute);
+                PerformanceMeasurementUtil.performanceTest(transaction);
                 break;
             }
 
             case "T": {
                 String[] parameters = Arrays.copyOfRange(command, 1, command.length);
                 Transaction transaction = new TopBalanceTransaction(parameters);
-                PerformanceMeasurementUtil.run(transaction::execute);
+                // PerformanceMeasurementUtil.run(transaction::execute);
+                PerformanceMeasurementUtil.performanceTest(transaction);
                 break;
             }
 
