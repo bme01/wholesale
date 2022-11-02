@@ -27,7 +27,7 @@ public class TopBalanceTransaction extends Transaction {
 
             String selectTop10CustomersSql = "select c_w_id, c_d_id, c_first, c_middle, c_last, c_balance \n" +
                     " from wholesale.customer " +
-                    "order by c_balance limit 10;";
+                    "order by c_balance desc limit 10;";
 
             PreparedStatement preparedStatement1 = connection.prepareStatement(selectTop10CustomersSql);
             ResultSet resultSet1 = preparedStatement1.executeQuery();
