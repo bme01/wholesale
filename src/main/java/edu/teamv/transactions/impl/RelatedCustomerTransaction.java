@@ -36,9 +36,10 @@ public class RelatedCustomerTransaction extends Transaction {
             System.out.println("Related Customer: ");
             HashSet<Integer> orderIds = getCustomerOrders();
             for(Integer orderId : orderIds){
-                Integer[] relatedOrderInfo = getRelatedOrderInfo(orderId);
-                if(relatedOrderInfo[0] != 0){
-                    printRelateCustomer(relatedOrderInfo);
+                ArrayList<Integer[]> relatedOrderInfo = getRelatedOrderInfo(orderId);
+                for(int i = 0; i < relatedOrderInfo.size(); i++){
+                    //System.out.println(relatedOrder[0] + relatedOrder[1] + relatedOrder[2]);
+                    printRelateCustomer(relatedOrderInfo.get(i));
                 }
 
             }
@@ -93,7 +94,7 @@ public class RelatedCustomerTransaction extends Transaction {
         return OrderLineItems;
     }
 
-    private Integer[] getRelatedOrderInfo(Integer orderId) throws SQLException {
+    private ArrayList<Integer[]> getRelatedOrderInfo(Integer orderId) throws SQLException {
         PreparedStatement preparedStatement;
         ResultSet resultSet;
         String getCustomerInfoSql =
@@ -123,14 +124,17 @@ public class RelatedCustomerTransaction extends Transaction {
         preparedStatement.setInt(2, customerDistrictID);
         preparedStatement.setInt(3, orderId);
         resultSet = preparedStatement.executeQuery();
-        Integer[] relatedOrder = new Integer[]{0, 0, 0};
-        if(resultSet.next()){
+        ArrayList<Integer[]> relatedOrders = new ArrayList<>();
+
+        while(resultSet.next()){
+            Integer[] relatedOrder = new Integer[3];
             relatedOrder[0] = resultSet.getInt(1);
             relatedOrder[1] = resultSet.getInt(2);
             relatedOrder[2] = resultSet.getInt(3);
+            relatedOrders.add(relatedOrder);
         }
         preparedStatement.close();
-        return relatedOrder;
+        return relatedOrders;
 
     }
 
