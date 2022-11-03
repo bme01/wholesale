@@ -5,8 +5,6 @@
 -- Dumped from database version 11.17
 -- Dumped by pg_dump version 11.17
 
--- Started on 2022-11-01 17:30:05
-
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
@@ -19,7 +17,6 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- TOC entry 6 (class 2615 OID 16394)
 -- Name: wholesale; Type: SCHEMA; Schema: -; Owner: postgres
 --
 
@@ -28,12 +25,44 @@ CREATE SCHEMA wholesale;
 
 ALTER SCHEMA wholesale OWNER TO postgres;
 
+--
+-- Name: update_balance_func(); Type: FUNCTION; Schema: wholesale; Owner: postgres
+--
+
+CREATE FUNCTION wholesale.update_balance_func() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$begin
+	update wholesale.balance 
+	set b_c_balance = new.c_balance 
+	where b_c_w_id = new.c_w_id and b_c_d_id = new.c_d_id and b_c_id = new.c_id;
+	return null;
+end;	$$;
+
+
+ALTER FUNCTION wholesale.update_balance_func() OWNER TO postgres;
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
 
 --
--- TOC entry 199 (class 1259 OID 16407)
+-- Name: balance; Type: TABLE; Schema: wholesale; Owner: postgres
+--
+
+CREATE TABLE wholesale.balance (
+    b_c_id integer NOT NULL,
+    b_c_w_id integer NOT NULL,
+    b_c_d_id integer NOT NULL,
+    b_c_balance numeric(12,2) NOT NULL,
+    b_c_first character varying(16) NOT NULL,
+    b_c_middle character(2) NOT NULL,
+    b_c_last character varying(16) NOT NULL
+);
+
+
+ALTER TABLE wholesale.balance OWNER TO postgres;
+
+--
 -- Name: customer; Type: TABLE; Schema: wholesale; Owner: postgres
 --
 
@@ -65,7 +94,6 @@ CREATE TABLE wholesale.customer (
 ALTER TABLE wholesale.customer OWNER TO postgres;
 
 --
--- TOC entry 198 (class 1259 OID 16400)
 -- Name: district; Type: TABLE; Schema: wholesale; Owner: postgres
 --
 
@@ -87,7 +115,6 @@ CREATE TABLE wholesale.district (
 ALTER TABLE wholesale.district OWNER TO postgres;
 
 --
--- TOC entry 201 (class 1259 OID 16435)
 -- Name: item; Type: TABLE; Schema: wholesale; Owner: postgres
 --
 
@@ -103,7 +130,6 @@ CREATE TABLE wholesale.item (
 ALTER TABLE wholesale.item OWNER TO postgres;
 
 --
--- TOC entry 200 (class 1259 OID 16415)
 -- Name: order; Type: TABLE; Schema: wholesale; Owner: postgres
 --
 
@@ -122,7 +148,6 @@ CREATE TABLE wholesale."order" (
 ALTER TABLE wholesale."order" OWNER TO postgres;
 
 --
--- TOC entry 202 (class 1259 OID 16500)
 -- Name: order_line; Type: TABLE; Schema: wholesale; Owner: postgres
 --
 
@@ -143,7 +168,6 @@ CREATE TABLE wholesale.order_line (
 ALTER TABLE wholesale.order_line OWNER TO postgres;
 
 --
--- TOC entry 203 (class 1259 OID 16536)
 -- Name: stock; Type: TABLE; Schema: wholesale; Owner: postgres
 --
 
@@ -171,7 +195,6 @@ CREATE TABLE wholesale.stock (
 ALTER TABLE wholesale.stock OWNER TO postgres;
 
 --
--- TOC entry 197 (class 1259 OID 16395)
 -- Name: warehouse; Type: TABLE; Schema: wholesale; Owner: postgres
 --
 
@@ -191,7 +214,14 @@ CREATE TABLE wholesale.warehouse (
 ALTER TABLE wholesale.warehouse OWNER TO postgres;
 
 --
--- TOC entry 2717 (class 2606 OID 16414)
+-- Name: balance balance_pkey; Type: CONSTRAINT; Schema: wholesale; Owner: postgres
+--
+
+ALTER TABLE ONLY wholesale.balance
+    ADD CONSTRAINT balance_pkey PRIMARY KEY (b_c_id, b_c_w_id, b_c_d_id);
+
+
+--
 -- Name: customer customer_pkey; Type: CONSTRAINT; Schema: wholesale; Owner: postgres
 --
 
@@ -200,7 +230,6 @@ ALTER TABLE ONLY wholesale.customer
 
 
 --
--- TOC entry 2713 (class 2606 OID 16406)
 -- Name: district district_pkey; Type: CONSTRAINT; Schema: wholesale; Owner: postgres
 --
 
@@ -209,7 +238,6 @@ ALTER TABLE ONLY wholesale.district
 
 
 --
--- TOC entry 2722 (class 2606 OID 16439)
 -- Name: item item_pkey; Type: CONSTRAINT; Schema: wholesale; Owner: postgres
 --
 
@@ -218,7 +246,6 @@ ALTER TABLE ONLY wholesale.item
 
 
 --
--- TOC entry 2726 (class 2606 OID 16504)
 -- Name: order_line order_line_pkey; Type: CONSTRAINT; Schema: wholesale; Owner: postgres
 --
 
@@ -227,7 +254,6 @@ ALTER TABLE ONLY wholesale.order_line
 
 
 --
--- TOC entry 2720 (class 2606 OID 16419)
 -- Name: order order_pkey; Type: CONSTRAINT; Schema: wholesale; Owner: postgres
 --
 
@@ -236,7 +262,6 @@ ALTER TABLE ONLY wholesale."order"
 
 
 --
--- TOC entry 2730 (class 2606 OID 16540)
 -- Name: stock stock_pkey; Type: CONSTRAINT; Schema: wholesale; Owner: postgres
 --
 
@@ -245,7 +270,6 @@ ALTER TABLE ONLY wholesale.stock
 
 
 --
--- TOC entry 2710 (class 2606 OID 16399)
 -- Name: warehouse warehouse_pkey; Type: CONSTRAINT; Schema: wholesale; Owner: postgres
 --
 
@@ -254,7 +278,13 @@ ALTER TABLE ONLY wholesale.warehouse
 
 
 --
--- TOC entry 2714 (class 1259 OID 16577)
+-- Name: balance_index; Type: INDEX; Schema: wholesale; Owner: postgres
+--
+
+CREATE INDEX balance_index ON wholesale.balance USING btree (b_c_balance DESC NULLS LAST);
+
+
+--
 -- Name: customer_balance; Type: INDEX; Schema: wholesale; Owner: postgres
 --
 
@@ -262,7 +292,6 @@ CREATE INDEX customer_balance ON wholesale.customer USING btree (c_balance DESC 
 
 
 --
--- TOC entry 2715 (class 1259 OID 16579)
 -- Name: customer_fk; Type: INDEX; Schema: wholesale; Owner: postgres
 --
 
@@ -270,7 +299,6 @@ CREATE INDEX customer_fk ON wholesale.customer USING btree (c_w_id, c_d_id);
 
 
 --
--- TOC entry 2711 (class 1259 OID 16578)
 -- Name: district_fk; Type: INDEX; Schema: wholesale; Owner: postgres
 --
 
@@ -278,7 +306,6 @@ CREATE INDEX district_fk ON wholesale.district USING btree (d_w_id);
 
 
 --
--- TOC entry 2718 (class 1259 OID 16580)
 -- Name: order_fk; Type: INDEX; Schema: wholesale; Owner: postgres
 --
 
@@ -286,7 +313,6 @@ CREATE INDEX order_fk ON wholesale."order" USING btree (o_w_id, o_d_id, o_c_id);
 
 
 --
--- TOC entry 2723 (class 1259 OID 16581)
 -- Name: order_line_fk_1; Type: INDEX; Schema: wholesale; Owner: postgres
 --
 
@@ -294,7 +320,6 @@ CREATE INDEX order_line_fk_1 ON wholesale.order_line USING btree (ol_w_id, ol_d_
 
 
 --
--- TOC entry 2724 (class 1259 OID 16582)
 -- Name: order_line_fk_2; Type: INDEX; Schema: wholesale; Owner: postgres
 --
 
@@ -302,23 +327,13 @@ CREATE INDEX order_line_fk_2 ON wholesale.order_line USING btree (ol_i_id);
 
 
 --
--- TOC entry 2727 (class 1259 OID 16583)
--- Name: stock_fk_1; Type: INDEX; Schema: wholesale; Owner: postgres
+-- Name: customer update_balance_tri; Type: TRIGGER; Schema: wholesale; Owner: postgres
 --
 
-CREATE INDEX stock_fk_1 ON wholesale.stock USING btree (s_i_id);
-
-
---
--- TOC entry 2728 (class 1259 OID 16584)
--- Name: stock_fk_2; Type: INDEX; Schema: wholesale; Owner: postgres
---
-
-CREATE INDEX stock_fk_2 ON wholesale.stock USING btree (s_w_id);
+CREATE TRIGGER update_balance_tri AFTER UPDATE OF c_balance ON wholesale.customer FOR EACH ROW EXECUTE PROCEDURE wholesale.update_balance_func();
 
 
 --
--- TOC entry 2732 (class 2606 OID 16430)
 -- Name: customer customer_c_w_id_fkey; Type: FK CONSTRAINT; Schema: wholesale; Owner: postgres
 --
 
@@ -327,7 +342,6 @@ ALTER TABLE ONLY wholesale.customer
 
 
 --
--- TOC entry 2731 (class 2606 OID 16425)
 -- Name: district district_d_w_id_fkey; Type: FK CONSTRAINT; Schema: wholesale; Owner: postgres
 --
 
@@ -336,7 +350,6 @@ ALTER TABLE ONLY wholesale.district
 
 
 --
--- TOC entry 2734 (class 2606 OID 16505)
 -- Name: order_line order_line_ol_i_id_fkey; Type: FK CONSTRAINT; Schema: wholesale; Owner: postgres
 --
 
@@ -345,7 +358,6 @@ ALTER TABLE ONLY wholesale.order_line
 
 
 --
--- TOC entry 2735 (class 2606 OID 16510)
 -- Name: order_line order_line_ol_w_id_fkey; Type: FK CONSTRAINT; Schema: wholesale; Owner: postgres
 --
 
@@ -354,7 +366,6 @@ ALTER TABLE ONLY wholesale.order_line
 
 
 --
--- TOC entry 2733 (class 2606 OID 16420)
 -- Name: order order_o_w_id_fkey; Type: FK CONSTRAINT; Schema: wholesale; Owner: postgres
 --
 
@@ -363,7 +374,6 @@ ALTER TABLE ONLY wholesale."order"
 
 
 --
--- TOC entry 2736 (class 2606 OID 16541)
 -- Name: stock stock_s_i_id_fkey; Type: FK CONSTRAINT; Schema: wholesale; Owner: postgres
 --
 
@@ -372,15 +382,12 @@ ALTER TABLE ONLY wholesale.stock
 
 
 --
--- TOC entry 2737 (class 2606 OID 16546)
 -- Name: stock stock_s_w_id_fkey; Type: FK CONSTRAINT; Schema: wholesale; Owner: postgres
 --
 
 ALTER TABLE ONLY wholesale.stock
     ADD CONSTRAINT stock_s_w_id_fkey FOREIGN KEY (s_w_id) REFERENCES wholesale.warehouse(w_id);
 
-
--- Completed on 2022-11-01 17:30:05
 
 --
 -- PostgreSQL database dump complete
