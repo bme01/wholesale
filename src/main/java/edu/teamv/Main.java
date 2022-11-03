@@ -36,7 +36,7 @@ public class Main {
             // return; // Streams are closed, terminate process
 
         } finally {
-            PerformanceMeasurementUtil.detailedReport();
+            PerformanceMeasurementUtil.report();
         }
         // PerformanceMeasurementUtil.detailedReport();
     }
@@ -74,10 +74,10 @@ public class Main {
             }
             case "R": {
                 String[] customeridentifier = Arrays.copyOfRange(command, 1, command.length);
-                System.out.println("Related customer transaction skipped: " + Arrays.toString(customeridentifier));
-                // Transaction transaction = new RelatedCustomerTransaction(customeridentifier);
+                // System.out.println("Related customer transaction skipped: " + Arrays.toString(customeridentifier));
+                Transaction transaction = new RelatedCustomerTransaction(customeridentifier);
                 // PerformanceMeasurementUtil.run(transaction::execute);
-                // PerformanceMeasurementUtil.performanceTest(transaction);
+                PerformanceMeasurementUtil.performanceTest(transaction);
                 break;
             }
 

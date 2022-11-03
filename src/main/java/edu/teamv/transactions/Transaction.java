@@ -1,5 +1,6 @@
 package edu.teamv.transactions;
 
+import edu.teamv.utils.datasource.impl.PgDataSource;
 import edu.teamv.utils.datasource.impl.YugabyteDataSource;
 
 import java.io.IOException;
@@ -13,7 +14,7 @@ public abstract class Transaction {
 
     public Transaction(String[] parameters) throws SQLException, IOException, ClassNotFoundException {
         this.parameters = parameters;
-        connection = YugabyteDataSource.getConnection();
+        connection = PgDataSource.getConnection();
         connection.setAutoCommit(false);
     }
 
