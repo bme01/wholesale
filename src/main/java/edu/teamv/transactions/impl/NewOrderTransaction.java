@@ -16,11 +16,8 @@ public class NewOrderTransaction extends Transaction {
     private final Integer customerID;
     private final Integer numberOfItems;
 
-    private final ArrayList<Integer> itemNumber;
-    private final ArrayList<Integer> supplierWarehouse;
-    private final ArrayList<Integer> quantity;
+    private OrderItem[] orderItems;
 
-    private  ArrayList<String> itemNames;
 
     private BigDecimal warehouseTax;
     private BigDecimal districtTax;
@@ -29,7 +26,17 @@ public class NewOrderTransaction extends Transaction {
     private String customerLastName;
 
     private String customerCredit;
+
+    private Timestamp orderCreatedTime;
     Connection connection;
+    private class OrderItem {
+        public Integer itemNumber;
+        public Integer supplierWarehouse;
+        public Integer quantity;
+        public String itemName;
+        public BigDecimal orderLineAmount;
+        public  Integer stockQuantity;
+    }
 
     public NewOrderTransaction(String[] customerIdentify, ArrayList<String[]> itemsInfoList)
             throws SQLException, IOException, ClassNotFoundException {
@@ -38,15 +45,17 @@ public class NewOrderTransaction extends Transaction {
         customerWarehouseID = Integer.parseInt(customerIdentify[1]);
         customerDistrictID = Integer.parseInt(customerIdentify[2]);
         numberOfItems = Integer.parseInt(customerIdentify[3]);
-        itemNumber = new ArrayList<>();
-        supplierWarehouse = new ArrayList<>();
-        quantity = new ArrayList<>();
+        orderItems = new OrderItem[numberOfItems];
+        int i = 0;
         for(String[] item : itemsInfoList){
-            itemNumber.add(Integer.parseInt(item[0]));
-            supplierWarehouse.add(Integer.parseInt(item[1]));
-            quantity.add(Integer.parseInt(item[2]));
+            OrderItem orderItem = new OrderItem();
+            orderItem.itemNumber = Integer.parseInt(item[0]);
+            orderItem.supplierWarehouse = Integer.parseInt(item[1]);
+            orderItem.quantity = Integer.parseInt(item[2]);
+            orderItems[i] = orderItem;
+            i++;
+
         }
-        itemNames = new ArrayList<>();
         connection = super.getConnection();
     }
 
@@ -58,11 +67,10 @@ public class NewOrderTransaction extends Transaction {
             createNewOrder(N);
             BigDecimal totalAmount = BigDecimal.valueOf(Float.valueOf(0));
             for (int i = 0; i < numberOfItems; i++){
-                updateStock(itemNumber.get(i), supplierWarehouse.get(i), quantity.get(i));
-                BigDecimal itemAmount = getItemAmount(itemNumber.get(i), quantity.get(i));
+                updateStock(orderItems, i);
+                BigDecimal itemAmount = getItemAmount(orderItems, i);
                 totalAmount = totalAmount.add(itemAmount);
-                createNewOrderLine(i + 1, N, itemNumber.get(i),
-                        supplierWarehouse.get(i), quantity.get(i), itemAmount);
+                createNewOrderLine(i + 1, N, orderItems, i);
             }
             BigDecimal finalAmount = calculateTotalAmount(totalAmount);
 
@@ -113,15 +121,18 @@ public class NewOrderTransaction extends Transaction {
         newOrder.setDistrictID(customerDistrictID);
         newOrder.setCustomerID(customerID);
         Date date = new Date();
-        newOrder.setOrderEntry(new Timestamp(date.getTime()));
+        orderCreatedTime = new Timestamp(date.getTime());
+        newOrder.setOrderEntry(orderCreatedTime);
         newOrder.setCarrierID(null);
         newOrder.setOrderLineCount(numberOfItems);
-        HashSet<Integer> supplierWarehouseSet = new HashSet<>(supplierWarehouse);
-        if(supplierWarehouseSet.equals(new HashSet<>(customerWarehouseID))){
-            newOrder.setOrderStatus(1);
-        }else{
-            newOrder.setOrderStatus(0);
+        newOrder.setOrderStatus(1);
+        for(int i = 0; i < orderItems.length; i++){
+            if(orderItems[i].supplierWarehouse != customerWarehouseID){
+                newOrder.setOrderStatus(0);
+                break;
+            }
         }
+
         String createNewOrderSql = "insert into wholesale.\"order\" \n" +
                 "( o_w_id , o_d_id , o_id , o_c_id, o_carrier_id,\n" +
                 " o_ol_cnt, o_all_local, o_entry_d ) \n" +
@@ -139,24 +150,26 @@ public class NewOrderTransaction extends Transaction {
         preparedStatement.close();
     }
 
-    private void updateStock(Integer itemId, Integer supplierWarehouseId, Integer quantityOfItem) throws SQLException {
+    private void updateStock(OrderItem[] orderItems, int index) throws SQLException {
         String getStockQuantitySql = "select s_quantity \n" +
                 " from wholesale.stock \n" +
                 " where s_w_id = ? and s_i_id = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(getStockQuantitySql);
-        preparedStatement.setInt(1, supplierWarehouseId);
-        preparedStatement.setInt(2, itemId);
+        preparedStatement.setInt(1, orderItems[index].supplierWarehouse);
+        preparedStatement.setInt(2, orderItems[index].itemNumber);
         ResultSet resultSet = preparedStatement.executeQuery();
         Integer stockQuantity = 0;
         if(resultSet.next()) {
             stockQuantity = resultSet.getInt(1);
         }
-        Integer adjustedQuantity = stockQuantity - quantityOfItem;
+        Integer adjustedQuantity = stockQuantity - orderItems[index].quantity;
         if(adjustedQuantity < 10){
             adjustedQuantity += 100;
         }
+        orderItems[index].stockQuantity = adjustedQuantity;
+
         Integer needRemoteWarehouse = 0;
-        if(!supplierWarehouseId.equals(customerWarehouseID)){
+        if(!orderItems[index].supplierWarehouse.equals(customerWarehouseID)){
             needRemoteWarehouse = 1;
         }
 
@@ -166,38 +179,40 @@ public class NewOrderTransaction extends Transaction {
                 "where s_w_id = ? and s_i_id = ?";
         preparedStatement = connection.prepareStatement(updateStockQuantitySql);
         preparedStatement.setInt(1, adjustedQuantity);
-        preparedStatement.setInt(2, quantityOfItem);
+        preparedStatement.setInt(2, orderItems[index].quantity);
         preparedStatement.setInt(3, needRemoteWarehouse);
-        preparedStatement.setInt(4, supplierWarehouseId);
-        preparedStatement.setInt(5, itemId);
+        preparedStatement.setInt(4, orderItems[index].supplierWarehouse);
+        preparedStatement.setInt(5, orderItems[index].itemNumber);
         preparedStatement.executeUpdate();
         preparedStatement.close();
     }
 
-    private BigDecimal getItemAmount(Integer itemId, Integer quantityOfItem) throws SQLException {
+    private BigDecimal getItemAmount(OrderItem[] orderItems, int index) throws SQLException {
         String getItemPriceSql = "select i_price, i_name from wholesale.item where i_id = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(getItemPriceSql);
-        preparedStatement.setInt(1, itemId);
+        preparedStatement.setInt(1, orderItems[index].itemNumber);
         ResultSet resultSet = preparedStatement.executeQuery();
         BigDecimal itemPrice = BigDecimal.valueOf(0);
         if(resultSet.next()){
             itemPrice = resultSet.getBigDecimal(1);
-            itemNames.add(resultSet.getString(2));
+            orderItems[index].itemName = resultSet.getString(2);
         }
+        BigDecimal itemAmount = itemPrice.multiply(BigDecimal.valueOf(orderItems[index].quantity));
+        orderItems[index].orderLineAmount = itemAmount;
         preparedStatement.close();
 
-        return itemPrice.multiply(BigDecimal.valueOf(quantityOfItem));
+        return itemAmount;
     }
 
-    private void createNewOrderLine(Integer orderLineNumber, Integer orderId, Integer itemId,
-                                    Integer supplierWarehouseId, Integer quantityOfItem, BigDecimal itemAmount) throws SQLException {
+    private void createNewOrderLine(Integer orderLineNumber, Integer orderId,
+                                    OrderItem[] orderItems, int index) throws SQLException {
 
         String getDistinctionInfoSql = "select s_dist_" + String.format("%02d", customerDistrictID) +
                 " from wholesale.stock \n" +
                 " where s_w_id = ? and s_i_id = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(getDistinctionInfoSql);
-        preparedStatement.setInt(1, supplierWarehouseId);
-        preparedStatement.setInt(2, itemId);
+        preparedStatement.setInt(1, orderItems[index].itemNumber);
+        preparedStatement.setInt(2, orderItems[index].itemNumber);
         ResultSet resultSet = preparedStatement.executeQuery();
 
         String distinctionInfo = "";
@@ -205,33 +220,21 @@ public class NewOrderTransaction extends Transaction {
             distinctionInfo = resultSet.getString(1);
         }
 
-        OrderLine newOrderLine = new OrderLine();
-        newOrderLine.setOrderID(orderId);
-        newOrderLine.setDistrictID(customerDistrictID);
-        newOrderLine.setWarehouseID(customerWarehouseID);
-        newOrderLine.setOrderLineId(orderLineNumber);
-        newOrderLine.setItemID(itemId);
-        newOrderLine.setSupplyingWarehouseId(supplierWarehouseId);
-        newOrderLine.setQuantityOfItem(quantityOfItem);
-        newOrderLine.setTotalPrice(itemAmount);
-        newOrderLine.setTimeOfDelivery(null);
-        newOrderLine.setMiscellaneous(distinctionInfo);
-
         String createNewOrderLineSql = "insert into wholesale.order_line \n" +
                 "( ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, \n" +
                 " ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d, ol_dist_info ) \n" +
                 "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         preparedStatement = connection.prepareStatement(createNewOrderLineSql);
-        preparedStatement.setInt(1, newOrderLine.getOrderID());
-        preparedStatement.setInt(2, newOrderLine.getDistrictID());
-        preparedStatement.setInt(3, newOrderLine.getWarehouseID());
-        preparedStatement.setInt(4, newOrderLine.getOrderLineId());
-        preparedStatement.setInt(5, newOrderLine.getItemID());
-        preparedStatement.setInt(6, newOrderLine.getSupplyingWarehouseId());
-        preparedStatement.setInt(7, newOrderLine.getQuantityOfItem());
-        preparedStatement.setBigDecimal(8, newOrderLine.getTotalPrice());
-        preparedStatement.setTimestamp(9, newOrderLine.getTimeOfDelivery());
-        preparedStatement.setString(10, newOrderLine.getMiscellaneous());
+        preparedStatement.setInt(1, orderId);
+        preparedStatement.setInt(2, customerDistrictID);
+        preparedStatement.setInt(3, customerWarehouseID);
+        preparedStatement.setInt(4, orderLineNumber);
+        preparedStatement.setInt(5, orderItems[index].itemNumber);
+        preparedStatement.setInt(6, orderItems[index].supplierWarehouse);
+        preparedStatement.setInt(7, orderItems[index].quantity);
+        preparedStatement.setBigDecimal(8, orderItems[index].orderLineAmount);
+        preparedStatement.setTimestamp(9, null);
+        preparedStatement.setString(10, distinctionInfo);
 
         preparedStatement.executeUpdate();
         preparedStatement.close();
@@ -291,67 +294,27 @@ public class NewOrderTransaction extends Transaction {
                 "}"
         );
 
-        PreparedStatement preparedStatement;
-        ResultSet resultSet;
-
         System.out.println("Warehouse tax rate: " + warehouseTax +
                 ", District tax rate: " + districtTax);
 
-        String getOrderInfoSql = "select o_entry_d from wholesale.\"order\" " +
-                "where o_w_id = ? and o_d_id = ? and o_c_id = ? and o_id = ?";
-        preparedStatement = connection.prepareStatement(getOrderInfoSql);
-        preparedStatement.setInt(1, customerWarehouseID);
-        preparedStatement.setInt(2, customerDistrictID);
-        preparedStatement.setInt(3, customerID);
-        preparedStatement.setInt(4, newOrderId);
-        resultSet = preparedStatement.executeQuery();
-        if(resultSet.next()) {
-            System.out.println("Order number: " + newOrderId +
-                    ", entry date: " + resultSet.getTimestamp(1));
 
-            System.out.println("Number of items: " + numberOfItems +
-                    ", Total amount for order: " + totalAmount);
-        }
+        System.out.println("Order number: " + newOrderId +
+                ", entry date: " + orderCreatedTime);
 
-        String getOrderLineAmountsInfo = "select ol_amount from wholesale.order_line " +
-                "where ol_w_id = ? and ol_d_id = ? and ol_o_id = ? order by ol_number" ;
-        preparedStatement = connection.prepareStatement(getOrderLineAmountsInfo);
-        preparedStatement.setInt(1, customerWarehouseID);
-        preparedStatement.setInt(2, customerDistrictID);
-        preparedStatement.setInt(3, newOrderId);
-        resultSet = preparedStatement.executeQuery();
-        ArrayList<BigDecimal> orderLineAmounts = new ArrayList<>();
-        while (resultSet.next()) {
-            orderLineAmounts.add(resultSet.getBigDecimal(1));
-        }
+        System.out.println("Number of items: " + numberOfItems +
+                ", Total amount for order: " + totalAmount);
+
 
         for (int i = 0; i < numberOfItems; i++){
 
-            String itemName = itemNames.get(i);
-            BigDecimal orderLineAmount = orderLineAmounts.get(i);
-
-            String getStockQuantitySql = "select s_quantity \n" +
-                    " from wholesale.stock \n" +
-                    " where s_w_id = ? and s_i_id = ?";
-            preparedStatement = connection.prepareStatement(getStockQuantitySql);
-            preparedStatement.setInt(1, supplierWarehouse.get(i));
-            preparedStatement.setInt(2, itemNumber.get(i));
-            resultSet = preparedStatement.executeQuery();
-            Integer stockQuantity = 0;
-            if(resultSet.next()){
-                stockQuantity = resultSet.getInt(1);
-            }
-
-            System.out.println("Item Number: " + itemNumber.get(i) +
-                    ", Item name: " + itemName +
-                    ", Supplier Warehouse: " + supplierWarehouse.get(i) +
-                    ", Item Quantity: " + quantity.get(i) +
-                    ", OrderLine Amount: "  + orderLineAmount +
-                    ", Stock Quantity: " + stockQuantity);
+            System.out.println("Item Number: " + orderItems[i].itemNumber +
+                    ", Item name: " + orderItems[i].itemName +
+                    ", Supplier Warehouse: " + orderItems[i].supplierWarehouse +
+                    ", Item Quantity: " + orderItems[i].quantity +
+                    ", OrderLine Amount: "  + orderItems[i].orderLineAmount +
+                    ", Stock Quantity: " + orderItems[i].stockQuantity);
 
         }
-        preparedStatement.close();
-
 
     }
 
