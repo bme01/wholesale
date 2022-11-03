@@ -1,5 +1,6 @@
 package edu.teamv;
 
+import edu.teamv.utils.DatabaseStateUtil;
 import edu.teamv.utils.LoadDataUtil;
 import edu.teamv.utils.datasource.impl.PgDataSource;
 import edu.teamv.utils.datasource.impl.YugabyteDataSource;
@@ -68,5 +69,10 @@ public class UtilTest {
     @Test
     public void loadDataTest () throws SQLException, IOException, ClassNotFoundException {
         LoadDataUtil.loadDataToNTD();
+    }
+
+    @Test
+    public void dbStateTest () throws SQLException, IOException {
+        DatabaseStateUtil.reportFinalState();
     }
 }

@@ -126,7 +126,7 @@ public class DeliveryTransaction extends Transaction {
         // System.out.println("total amount is " + totalAmount);
 
         // update customer
-        String updateCustomer = "update wholesale.customer set c_balance = c_balance + ?, c_payment_cnt = c_payment_cnt + 1 \n" +
+        String updateCustomer = "update wholesale.customer set c_balance = c_balance + ?, c_delivery = c_delivery + 1 \n" +
                 "where c_w_id = ? and c_d_id = ? and c_id = ?;";
 
 
