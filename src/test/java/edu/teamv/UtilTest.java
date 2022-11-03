@@ -1,5 +1,6 @@
 package edu.teamv;
 
+import edu.teamv.utils.LoadDataUtil;
 import edu.teamv.utils.datasource.impl.PgDataSource;
 import edu.teamv.utils.datasource.impl.YugabyteDataSource;
 import edu.teamv.transactions.Transaction;
@@ -62,5 +63,10 @@ public class UtilTest {
         Properties properties = new Properties();
         properties.load(inputStream);
         System.out.println(properties);
+    }
+
+    @Test
+    public void loadDataTest () throws SQLException, IOException, ClassNotFoundException {
+        LoadDataUtil.loadDataToNTD();
     }
 }

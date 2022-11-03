@@ -130,6 +130,19 @@ CREATE TABLE wholesale.item (
 ALTER TABLE wholesale.item OWNER TO postgres;
 
 --
+-- Name: next_to_deliver_order; Type: TABLE; Schema: wholesale; Owner: postgres
+--
+
+CREATE TABLE wholesale.next_to_deliver_order (
+    ntd_w_id integer NOT NULL,
+    ntd_d_id integer NOT NULL,
+    ntd_o_id integer NOT NULL
+);
+
+
+ALTER TABLE wholesale.next_to_deliver_order OWNER TO postgres;
+
+--
 -- Name: order; Type: TABLE; Schema: wholesale; Owner: postgres
 --
 
@@ -246,6 +259,14 @@ ALTER TABLE ONLY wholesale.item
 
 
 --
+-- Name: next_to_deliver_order next_to_deliver_order_pkey; Type: CONSTRAINT; Schema: wholesale; Owner: postgres
+--
+
+ALTER TABLE ONLY wholesale.next_to_deliver_order
+    ADD CONSTRAINT next_to_deliver_order_pkey PRIMARY KEY (ntd_w_id, ntd_d_id, ntd_o_id);
+
+
+--
 -- Name: order_line order_line_pkey; Type: CONSTRAINT; Schema: wholesale; Owner: postgres
 --
 
@@ -327,10 +348,10 @@ CREATE INDEX order_line_fk_2 ON wholesale.order_line USING btree (ol_i_id);
 
 
 --
--- Name: customer update_balance_tri; Type: TRIGGER; Schema: wholesale; Owner: postgres
+-- Name: customer tri_after_update_t1; Type: TRIGGER; Schema: wholesale; Owner: postgres
 --
 
-CREATE TRIGGER update_balance_tri AFTER UPDATE OF c_balance ON wholesale.customer FOR EACH ROW EXECUTE PROCEDURE wholesale.update_balance_func();
+CREATE TRIGGER tri_after_update_t1 AFTER UPDATE OF c_balance ON wholesale.customer FOR EACH ROW EXECUTE PROCEDURE wholesale.update_balance_func();
 
 
 --

@@ -26,16 +26,14 @@ public class DeliveryTransaction extends Transaction {
     @Override
     public void execute() {
         try {
+            long startNs = System.nanoTime();
             List<Order> orders = findOrders();
-            int count = 1;
+            long findOrdersTime = System.nanoTime() - startNs;
+            System.out.println(String.format("Find orders time: %f", (double) findOrdersTime / 1_000_000_000));
             for (Order order : orders) {
-                // System.out.println("Order detail: " + order);
                 updateCarrier(order);
                 updateOrderLines(order);
                 updateCustomer(order);
-                // System.out.println("Order " + count + " has been delivered at " + new Timestamp(System.currentTimeMillis()));
-                // System.out.println("________________________________");
-                count++;
             }
 
             // connection.commit();
@@ -53,11 +51,10 @@ public class DeliveryTransaction extends Transaction {
     // select orders of each of the 10 districts from wholesale.order
     private List<Order> findOrders() throws SQLException {
 
-        String getOrderInfoSql = "select o_id, o_c_id from wholesale.order\n" +
-                "where o_w_id = ? and o_d_id = ?\n" +
-                "and o_id = (select MIN(o_id) from wholesale.order \n" +
-                "where o_w_id = ? and o_d_id = ?\n" +
-                "and \"order\".o_carrier_id is NULL);";
+        String getOrderInfoSselect o_id, o_c_id from wholesale.order\n" +
+        "where o_w_id = ? and o_d_id = ?\n" +
+                "and o_id = (select ntd_o_id from wholesale.next_to_deliver_order \n" +
+                "where ntd_w_id = ? and ntd_d_id = ?);ql = "";
 
         PreparedStatement preparedStatement = connection.prepareStatement(getOrderInfoSql);
         List<Order> orders = new ArrayList<>();
@@ -77,6 +74,7 @@ public class DeliveryTransaction extends Transaction {
                 order.setCustomerID(resultSet.getInt(2));
                 order.setCarrierID(carrierID);
                 orders.add(order);
+                // System.out.println(order);
             }
         }
         preparedStatement.close();

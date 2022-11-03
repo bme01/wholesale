@@ -205,9 +205,9 @@ public class PerformanceMeasurementUtil {
         System.out.println(String.format("PopularItem transaction statistics: %d, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f",
                 executedPopularItemTransactions, totalExecutionTimeOfPopularItemTransaction, totalExecutionTimeOfPopularItemTransaction / executedPopularItemTransactions, executedPopularItemTransactions / totalExecutionTimeOfPopularItemTransaction, latencyListOfPopularItemTransactions.get((int) (executedPopularItemTransactions * 0.5)), latencyListOfPopularItemTransactions.get((int) (executedPopularItemTransactions * 0.95)), latencyListOfPopularItemTransactions.get((int) (executedPopularItemTransactions * 0.99))));
 
-        Collections.sort(latencyListOfRelatedCustomerTransactions);
-        System.out.println(String.format("RelatedCustomer transaction statistics: %d, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f",
-                executedRelatedCustomerTransactions, totalExecutionTimeOfRelatedCustomerTransaction, totalExecutionTimeOfRelatedCustomerTransaction / executedRelatedCustomerTransactions, executedRelatedCustomerTransactions / totalExecutionTimeOfRelatedCustomerTransaction, latencyListOfRelatedCustomerTransactions.get((int) (executedRelatedCustomerTransactions * 0.5)), latencyListOfRelatedCustomerTransactions.get((int) (executedRelatedCustomerTransactions * 0.95)), latencyListOfRelatedCustomerTransactions.get((int) (executedRelatedCustomerTransactions * 0.99))));
+        // Collections.sort(latencyListOfRelatedCustomerTransactions);
+        // System.out.println(String.format("RelatedCustomer transaction statistics: %d, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f",
+        //         executedRelatedCustomerTransactions, totalExecutionTimeOfRelatedCustomerTransaction, totalExecutionTimeOfRelatedCustomerTransaction / executedRelatedCustomerTransactions, executedRelatedCustomerTransactions / totalExecutionTimeOfRelatedCustomerTransaction, latencyListOfRelatedCustomerTransactions.get((int) (executedRelatedCustomerTransactions * 0.5)), latencyListOfRelatedCustomerTransactions.get((int) (executedRelatedCustomerTransactions * 0.95)), latencyListOfRelatedCustomerTransactions.get((int) (executedRelatedCustomerTransactions * 0.99))));
 
         Collections.sort(latencyListOfStockLevelTransactions);
         System.out.println(String.format("StockLevel transaction statistics: %d, %.2f, %.2f, %.2f, %.2f, %.2f, %.2f",
