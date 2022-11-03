@@ -36,9 +36,8 @@ public class Main {
             // return; // Streams are closed, terminate process
 
         } finally {
-            PerformanceMeasurementUtil.report();
+            PerformanceMeasurementUtil.detailedReport();
         }
-        // PerformanceMeasurementUtil.detailedReport();
     }
 
     static public void parseAndEvaluate(String commandString, BufferedReader reader)
