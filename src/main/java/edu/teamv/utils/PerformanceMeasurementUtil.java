@@ -159,7 +159,7 @@ public class PerformanceMeasurementUtil {
 
         private void executeOne(double latency) {
             executed++;
-            totalExecutionTime += latency;
+            totalExecutionTime += (latency / 100);
             latencyList.add(latency);
         }
 
@@ -205,14 +205,14 @@ public class PerformanceMeasurementUtil {
         private void show() {
             if (latencyList.isEmpty()) return;
             System.out.println(String.format("%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f",
-                    executed, totalExecutionTime / 100, throughput(), average(), median(), percentile95(), percentile99()));
+                    executed, totalExecutionTime, throughput(), average(), median(), percentile95(), percentile99()));
 
         }
 
         private void show(String transactionName) {
             if (latencyList.isEmpty()) return;
             System.out.println(String.format("%s: %d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f",
-                    transactionName, executed, totalExecutionTime / 100, throughput(), average(), median(), percentile95(), percentile99()));
+                    transactionName, executed, totalExecutionTime, throughput(), average(), median(), percentile95(), percentile99()));
 
         }
 
