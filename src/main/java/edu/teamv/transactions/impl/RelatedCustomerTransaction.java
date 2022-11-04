@@ -26,7 +26,7 @@ public class RelatedCustomerTransaction extends Transaction {
         connection = super.getConnection();
     }
 
-        public void execute() {
+        public void execute() throws SQLException {
         try {
             System.out.println("======Related Customer Transaction======");
             System.out.println("Customer identifier{" +
@@ -56,18 +56,21 @@ public class RelatedCustomerTransaction extends Transaction {
 
             }
 
-
-
-
             System.out.println("======End Transaction======");
             connection.commit();
-            connection.close();
         } catch (Exception e) {
             e.printStackTrace();
             try {
                 connection.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
+                throw new SQLException();
+            }
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
 

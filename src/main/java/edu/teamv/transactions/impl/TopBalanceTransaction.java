@@ -21,7 +21,7 @@ public class TopBalanceTransaction extends Transaction {
     }
 
     @Override
-    public void execute() {
+    public void execute() throws SQLException {
 
         try {
 
@@ -76,8 +76,14 @@ public class TopBalanceTransaction extends Transaction {
             }
 
             connection.commit();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            throw new SQLException();
         } finally {
             try {
                 connection.close();

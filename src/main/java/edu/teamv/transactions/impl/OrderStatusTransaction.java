@@ -34,13 +34,19 @@ public class OrderStatusTransaction extends Transaction {
             printOrderLine(orderId);
 
             connection.commit();
-            connection.close();
         } catch (Exception e) {
             e.printStackTrace();
             try {
                 connection.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
+                throw new SQLException();
+            }
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
 

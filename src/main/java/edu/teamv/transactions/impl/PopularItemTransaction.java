@@ -36,7 +36,7 @@ public class PopularItemTransaction extends Transaction {
     }
 
     @Override
-    public void execute() {
+    public void execute() throws SQLException {
         try {
             Integer nextOrderID = findNextOrderID();
             List<Order> lastNOrders = findOrders(nextOrderID);
@@ -79,9 +79,20 @@ public class PopularItemTransaction extends Transaction {
             }
 
             connection.commit();
-            connection.close();
         } catch (Exception e) {
             e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                throw new SQLException();
+            }
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 

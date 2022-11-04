@@ -37,7 +37,7 @@ public class PaymentTransaction extends Transaction {
     }
 
     @Override
-    public void execute() {
+    public void execute() throws SQLException {
         try {
 
             updateWarehouse();
@@ -64,13 +64,19 @@ public class PaymentTransaction extends Transaction {
             System.out.println(String.format("Payment Amount: %.2f", payment));
 
             connection.commit();
-            connection.close();
         } catch (Exception e) {
             e.printStackTrace();
             try {
                 connection.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
+                throw new SQLException();
+            }
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
     }

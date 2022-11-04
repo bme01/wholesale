@@ -28,7 +28,7 @@ public class StockLevelTransaction extends Transaction {
     }
 
     @Override
-    public void execute() {
+    public void execute() throws SQLException {
         try {
             System.out.println("======Stock Level Transaction======");
             Integer N = getNextOrderNumber();
@@ -44,6 +44,13 @@ public class StockLevelTransaction extends Transaction {
                 connection.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
+                throw new SQLException();
+            }
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
 
