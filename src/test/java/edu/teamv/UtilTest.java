@@ -18,6 +18,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -77,5 +78,17 @@ public class UtilTest {
     @Test
     public void dbStateTest () throws SQLException, IOException {
         DatabaseStateUtil.reportFinalState();
+    }
+
+    @Test
+    public void collectionSortTest() {
+
+        PerformanceMeasurementUtil.Statistics statistics = new PerformanceMeasurementUtil.Statistics();
+
+        // statistics.executeOne(1.234);
+        // statistics.executeOne(0.123);
+        // statistics.executeOne(5.1236);
+        // statistics.show();
+
     }
 }

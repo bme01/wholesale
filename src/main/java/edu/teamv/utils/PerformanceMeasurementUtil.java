@@ -161,6 +161,7 @@ public class PerformanceMeasurementUtil {
             executed++;
             totalExecutionTime += latency;
             latencyList.add(latency);
+            sorted = false;
         }
 
         private void failOne() {
@@ -223,7 +224,6 @@ public class PerformanceMeasurementUtil {
 
     public static void report() {
         overallStatistics.show();
-
     }
 
     public static void detailedReport() {
