@@ -93,7 +93,7 @@ public class NewOrderTransaction extends Transaction {
             BigDecimal finalAmount = calculateTotalAmount(totalAmount);
 
             printFinalInfo(N, finalAmount);
-            //connection.commit();
+            connection.commit();
             connection.close();
         } catch (Exception e) {
             e.printStackTrace();

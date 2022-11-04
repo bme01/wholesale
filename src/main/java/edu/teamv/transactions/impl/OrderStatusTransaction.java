@@ -33,7 +33,7 @@ public class OrderStatusTransaction extends Transaction {
             Integer orderId = printAndGetOrderInfo();
             printOrderLine(orderId);
 
-
+            connection.commit();
             connection.close();
         } catch (Exception e) {
             e.printStackTrace();

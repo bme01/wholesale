@@ -36,6 +36,7 @@ public class StockLevelTransaction extends Transaction {
             Integer itemNumber = getItemNumberBelowThread(itemSet);
             System.out.println(" The total number of items below the threshold: " + itemNumber);
 
+            connection.commit();
             connection.close();
         } catch (Exception e) {
             e.printStackTrace();

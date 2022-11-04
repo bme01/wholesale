@@ -24,7 +24,7 @@ public class DeliveryTransaction extends Transaction {
     }
 
     @Override
-    public void execute() {
+    public void execute() throws SQLException {
         try {
             List<Order> orders = findOrders();
             for (Order order : orders) {
@@ -33,15 +33,20 @@ public class DeliveryTransaction extends Transaction {
                 updateCustomer(order);
                 updateNtd(order);
             }
-
-            // connection.commit();
-            connection.close();
+            connection.commit();
         } catch (Exception e) {
             e.printStackTrace();
             try {
                 connection.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
+            }
+            throw new SQLException();
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -50,7 +55,7 @@ public class DeliveryTransaction extends Transaction {
     private List<Order> findOrders() throws SQLException {
 
         String getOrderInfoSql = "select o_id, o_c_id from wholesale.order\n" +
-        "where o_w_id = ? and o_d_id = ?\n" +
+                "where o_w_id = ? and o_d_id = ?\n" +
                 "and o_id = (select ntd_o_id from wholesale.next_to_deliver_order \n" +
                 "where ntd_w_id = ? and ntd_d_id = ?);";
 
@@ -143,12 +148,14 @@ public class DeliveryTransaction extends Transaction {
     private void updateNtd(Order order) throws SQLException {
 
         String updateNtdSql = "update wholesale.next_to_deliver_order \n" +
-                "set ntd_o_id =ntd_o_id + 1 \n" +
+                "set ntd_o_id = ntd_o_id + 1 \n" +
                 "where ntd_w_id = ? and ntd_d_id = ? and ntd_o_id = ?";
 
         PreparedStatement preparedStatement = connection.prepareStatement(updateNtdSql);
         preparedStatement.setInt(1, warehouseID);
         preparedStatement.setInt(2, order.getDistrictID());
         preparedStatement.setInt(3, order.getOrderID());
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
     }
 }

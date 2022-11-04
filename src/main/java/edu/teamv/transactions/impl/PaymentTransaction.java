@@ -48,6 +48,7 @@ public class PaymentTransaction extends Transaction {
             Warehouse warehouse = findWarehouse();
             District district = findDistrict();
 
+
             // output results
             System.out.println(String.format("Customer Identifier: (%d, %d, %d); Name: %s, %s, %s; " +
                             "Address: %s, %s, %s, %s, %s; Phone: %s; " +
@@ -62,7 +63,7 @@ public class PaymentTransaction extends Transaction {
                     district.getStreet1(), district.getStreet2(), district.getCity(), district.getState(), district.getZip()));
             System.out.println(String.format("Payment Amount: %.2f", payment));
 
-            // connection.commit();
+            connection.commit();
             connection.close();
         } catch (Exception e) {
             e.printStackTrace();

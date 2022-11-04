@@ -60,6 +60,7 @@ public class PopularItemTransaction extends Transaction {
                 }
             }
 
+
             // output results
             System.out.println(String.format("District Identifier: (%s, %s)", warehouseID, districtID));
             System.out.println(String.format("Number of Last Orders: %d", lastN));
@@ -77,7 +78,7 @@ public class PopularItemTransaction extends Transaction {
                 System.out.println(String.format("Item Name: %S; Percentage: %2.2f%%", entry.getKey(), (double) (entry.getValue() * 100 / lastN)));
             }
 
-            // connection.commit();
+            connection.commit();
             connection.close();
         } catch (Exception e) {
             e.printStackTrace();

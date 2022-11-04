@@ -75,6 +75,7 @@ public class TopBalanceTransaction extends Transaction {
                         customer.getFirstName(), customer.getMiddleName(), customer.getLastName(), customer.getBalance(), warehouseNames[i], districtNames[i]));
             }
 
+            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
