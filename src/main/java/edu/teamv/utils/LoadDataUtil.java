@@ -25,6 +25,7 @@ public class LoadDataUtil {
             }
         }
         preparedStatement.close();
+        connection.close();
     }
 
 }
