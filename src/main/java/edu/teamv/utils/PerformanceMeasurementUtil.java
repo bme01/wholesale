@@ -168,7 +168,7 @@ public class PerformanceMeasurementUtil {
         }
 
         private double throughput() {
-            return executed / totalExecutionTime / 1_000;
+            return executed / (totalExecutionTime / 1_000);
         }
 
         private double average() {
