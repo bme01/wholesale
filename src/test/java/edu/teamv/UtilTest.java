@@ -53,8 +53,11 @@ public class UtilTest {
     public void performanceMeasurementUtilTest() throws SQLException, IOException, ClassNotFoundException {
         Transaction deliveryTransaction = new DeliveryTransaction(new String[]{"1", "1"});
         Transaction paymentTransaction = new PaymentTransaction(new String[]{"1", "1", "1", "100.98"});
-        PerformanceMeasurementUtil.run(deliveryTransaction::execute);
-        PerformanceMeasurementUtil.run(paymentTransaction::execute);
+        // PerformanceMeasurementUtil.run(deliveryTransaction::execute);
+        // PerformanceMeasurementUtil.run(paymentTransaction::execute);
+        PerformanceMeasurementUtil.performanceTest(deliveryTransaction);
+        PerformanceMeasurementUtil.performanceTest(paymentTransaction);
+        PerformanceMeasurementUtil.detailedReport();
         PerformanceMeasurementUtil.report();
     }
 
