@@ -97,13 +97,13 @@ public class StockLevelTransaction extends Transaction {
         Integer totalNum = 0;
         String getItemIdSql = "select s_quantity \n" +
                 " from wholesale.stock \n"+
-                " where s_w_id = ? and (  ";
+                " where s_w_id = ? and s_i_id in ( ";
         ResultSet resultSet;
         ArrayList<String> conditions = new ArrayList<>();
         for(Integer item : itemSet){
-            conditions.add("( s_i_id = " + item +" )");
+            conditions.add(String.valueOf(item));
         }
-        getItemIdSql = getItemIdSql + String.join(" or ", conditions) + ");";
+        getItemIdSql = getItemIdSql + String.join(", ", conditions) + ");";
         PreparedStatement preparedStatement = connection.prepareStatement(getItemIdSql);
         preparedStatement.setInt(1, warehouseID);
         resultSet = preparedStatement.executeQuery();
