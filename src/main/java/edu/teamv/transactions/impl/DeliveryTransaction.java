@@ -24,28 +24,29 @@ public class DeliveryTransaction extends Transaction {
     }
 
     @Override
-    public void execute() {
+    public void execute() throws SQLException {
         try {
             List<Order> orders = findOrders();
-            int count = 1;
             for (Order order : orders) {
-                // System.out.println("Order detail: " + order);
                 updateCarrier(order);
                 updateOrderLines(order);
                 updateCustomer(order);
-                // System.out.println("Order " + count + " has been delivered at " + new Timestamp(System.currentTimeMillis()));
-                // System.out.println("________________________________");
-                count++;
+                updateNtd(order);
             }
-
-            // connection.commit();
-            connection.close();
+            connection.commit();
         } catch (Exception e) {
             e.printStackTrace();
             try {
                 connection.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
+            }
+            throw new SQLException();
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -55,9 +56,8 @@ public class DeliveryTransaction extends Transaction {
 
         String getOrderInfoSql = "select o_id, o_c_id from wholesale.order\n" +
                 "where o_w_id = ? and o_d_id = ?\n" +
-                "and o_id = (select MIN(o_id) from wholesale.order \n" +
-                "where o_w_id = ? and o_d_id = ?\n" +
-                "and \"order\".o_carrier_id is NULL);";
+                "and o_id = (select ntd_o_id from wholesale.next_to_deliver_order \n" +
+                "where ntd_w_id = ? and ntd_d_id = ?);";
 
         PreparedStatement preparedStatement = connection.prepareStatement(getOrderInfoSql);
         List<Order> orders = new ArrayList<>();
@@ -71,12 +71,11 @@ public class DeliveryTransaction extends Transaction {
 
             while (resultSet.next()) {
                 Order order = new Order();
-                order.setWarehouseID(warehouseID);
                 order.setDistrictID(i);
                 order.setOrderID(resultSet.getInt(1));
                 order.setCustomerID(resultSet.getInt(2));
-                order.setCarrierID(carrierID);
                 orders.add(order);
+                // System.out.println(order);
             }
         }
         preparedStatement.close();
@@ -88,8 +87,8 @@ public class DeliveryTransaction extends Transaction {
         String updateCarrierSql = "update wholesale.order set o_carrier_id = ? \n" +
                 "where o_w_id = ? and o_d_id = ? and o_id = ?;";
         PreparedStatement preparedStatement = connection.prepareStatement(updateCarrierSql);
-        preparedStatement.setInt(1, order.getCarrierID());
-        preparedStatement.setInt(2, order.getWarehouseID());
+        preparedStatement.setInt(1, carrierID);
+        preparedStatement.setInt(2, warehouseID);
         preparedStatement.setInt(3, order.getDistrictID());
         preparedStatement.setInt(4, order.getOrderID());
         preparedStatement.executeUpdate();
@@ -104,7 +103,7 @@ public class DeliveryTransaction extends Transaction {
 
         PreparedStatement preparedStatement = connection.prepareStatement(updateOrderLineTimestampSql);
         preparedStatement.setTimestamp(1, timestamp);
-        preparedStatement.setInt(2, order.getWarehouseID());
+        preparedStatement.setInt(2, warehouseID);
         preparedStatement.setInt(3, order.getDistrictID());
         preparedStatement.setInt(4, order.getOrderID());
         preparedStatement.executeUpdate();
@@ -119,7 +118,7 @@ public class DeliveryTransaction extends Transaction {
                 "where ol_w_id = ? and ol_d_id = ? and ol_o_id = ?;";
 
         PreparedStatement preparedStatement1 = connection.prepareStatement(selectSumOfAmountSql);
-        preparedStatement1.setInt(1, order.getWarehouseID());
+        preparedStatement1.setInt(1, warehouseID);
         preparedStatement1.setInt(2, order.getDistrictID());
         preparedStatement1.setInt(3, order.getOrderID());
 
@@ -132,16 +131,31 @@ public class DeliveryTransaction extends Transaction {
         // System.out.println("total amount is " + totalAmount);
 
         // update customer
-        String updateCustomer = "update wholesale.customer set c_balance = c_balance + ?, c_payment_cnt = c_payment_cnt + 1 \n" +
+        String updateCustomer = "update wholesale.customer set c_balance = c_balance + ?, c_delivery = c_delivery + 1 \n" +
                 "where c_w_id = ? and c_d_id = ? and c_id = ?;";
 
 
         PreparedStatement preparedStatement2 = connection.prepareStatement(updateCustomer);
         preparedStatement2.setBigDecimal(1, totalAmount);
-        preparedStatement2.setInt(2, order.getWarehouseID());
+        preparedStatement2.setInt(2, warehouseID);
         preparedStatement2.setInt(3, order.getDistrictID());
         preparedStatement2.setInt(4, order.getCustomerID());
         preparedStatement2.executeUpdate();
         preparedStatement2.close();
+    }
+
+
+    private void updateNtd(Order order) throws SQLException {
+
+        String updateNtdSql = "update wholesale.next_to_deliver_order \n" +
+                "set ntd_o_id = ntd_o_id + 1 \n" +
+                "where ntd_w_id = ? and ntd_d_id = ? and ntd_o_id = ?";
+
+        PreparedStatement preparedStatement = connection.prepareStatement(updateNtdSql);
+        preparedStatement.setInt(1, warehouseID);
+        preparedStatement.setInt(2, order.getDistrictID());
+        preparedStatement.setInt(3, order.getOrderID());
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
     }
 }

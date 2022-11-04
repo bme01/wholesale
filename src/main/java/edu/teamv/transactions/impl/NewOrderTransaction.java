@@ -28,14 +28,19 @@ public class NewOrderTransaction extends Transaction {
     private String customerCredit;
 
     private Timestamp orderCreatedTime;
+
+    PreparedStatement preparedStatementForOrderLine;
+
+    PreparedStatement preparedStatementForCustomerOrderLine;
     Connection connection;
+
     private class OrderItem {
         public Integer itemNumber;
         public Integer supplierWarehouse;
         public Integer quantity;
         public String itemName;
         public BigDecimal orderLineAmount;
-        public  Integer stockQuantity;
+        public Integer stockQuantity;
     }
 
     public NewOrderTransaction(String[] customerIdentify, ArrayList<String[]> itemsInfoList)
@@ -47,7 +52,7 @@ public class NewOrderTransaction extends Transaction {
         numberOfItems = Integer.parseInt(customerIdentify[3]);
         orderItems = new OrderItem[numberOfItems];
         int i = 0;
-        for(String[] item : itemsInfoList){
+        for (String[] item : itemsInfoList) {
             OrderItem orderItem = new OrderItem();
             orderItem.itemNumber = Integer.parseInt(item[0]);
             orderItem.supplierWarehouse = Integer.parseInt(item[1]);
@@ -66,37 +71,57 @@ public class NewOrderTransaction extends Transaction {
             updateDistrict();
             createNewOrder(N);
             BigDecimal totalAmount = BigDecimal.valueOf(Float.valueOf(0));
-            for (int i = 0; i < numberOfItems; i++){
+
+            String createNewOrderLineSql = "insert into wholesale.order_line \n" +
+                    "( ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, \n" +
+                    " ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d, ol_dist_info ) \n" +
+                    "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            preparedStatementForOrderLine = connection.prepareStatement(createNewOrderLineSql);
+            String createNewCustomerOrderLineSql = "insert into wholesale.customer_order_items \n" +
+                    "(coi_w_id, coi_d_id, coi_c_id, coi_o_id, coi_i_id) \n" +
+                    "values (?, ?, ?, ?, ?)";
+            preparedStatementForCustomerOrderLine = connection.prepareStatement(createNewCustomerOrderLineSql);
+
+
+            for (int i = 0; i < numberOfItems; i++) {
                 updateStock(orderItems, i);
                 BigDecimal itemAmount = getItemAmount(orderItems, i);
                 totalAmount = totalAmount.add(itemAmount);
                 createNewOrderLine(i + 1, N, orderItems, i);
             }
+            preparedStatementForOrderLine.executeBatch();
+            preparedStatementForCustomerOrderLine.executeBatch();
             BigDecimal finalAmount = calculateTotalAmount(totalAmount);
 
             printFinalInfo(N, finalAmount);
-
-            connection.close();
+            connection.commit();
         } catch (Exception e) {
             e.printStackTrace();
             try {
                 connection.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
+                throw new SQLException();
+            }
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
     }
 
     private Integer getNextOrderNumber() throws SQLException {
         String getNextOrderSql = "select d_next_oid \n" +
-                " from wholesale.district \n"+
+                " from wholesale.district \n" +
                 " where d_w_id = ? and d_id = ?;";
         PreparedStatement preparedStatement = connection.prepareStatement(getNextOrderSql);
         preparedStatement.setInt(1, customerWarehouseID);
         preparedStatement.setInt(2, customerDistrictID);
         ResultSet resultSet = preparedStatement.executeQuery();
         Integer res = 0;
-        if(resultSet.next()){
+        if (resultSet.next()) {
             res = resultSet.getInt(1);
         }
 
@@ -104,6 +129,7 @@ public class NewOrderTransaction extends Transaction {
 
         return res;
     }
+
     private void updateDistrict() throws SQLException {
         String updateDistrictNextOrderNumberSql = "update wholesale.district set d_next_oid = d_next_oid + 1 \n" +
                 "where d_w_id = ? and d_id = ?;";
@@ -126,8 +152,8 @@ public class NewOrderTransaction extends Transaction {
         newOrder.setCarrierID(null);
         newOrder.setOrderLineCount(numberOfItems);
         newOrder.setOrderStatus(1);
-        for(int i = 0; i < orderItems.length; i++){
-            if(orderItems[i].supplierWarehouse != customerWarehouseID){
+        for (int i = 0; i < orderItems.length; i++) {
+            if (orderItems[i].supplierWarehouse != customerWarehouseID) {
                 newOrder.setOrderStatus(0);
                 break;
             }
@@ -159,17 +185,17 @@ public class NewOrderTransaction extends Transaction {
         preparedStatement.setInt(2, orderItems[index].itemNumber);
         ResultSet resultSet = preparedStatement.executeQuery();
         Integer stockQuantity = 0;
-        if(resultSet.next()) {
+        if (resultSet.next()) {
             stockQuantity = resultSet.getInt(1);
         }
         Integer adjustedQuantity = stockQuantity - orderItems[index].quantity;
-        if(adjustedQuantity < 10){
+        if (adjustedQuantity < 10) {
             adjustedQuantity += 100;
         }
         orderItems[index].stockQuantity = adjustedQuantity;
 
         Integer needRemoteWarehouse = 0;
-        if(!orderItems[index].supplierWarehouse.equals(customerWarehouseID)){
+        if (!orderItems[index].supplierWarehouse.equals(customerWarehouseID)) {
             needRemoteWarehouse = 1;
         }
 
@@ -193,7 +219,7 @@ public class NewOrderTransaction extends Transaction {
         preparedStatement.setInt(1, orderItems[index].itemNumber);
         ResultSet resultSet = preparedStatement.executeQuery();
         BigDecimal itemPrice = BigDecimal.valueOf(0);
-        if(resultSet.next()){
+        if (resultSet.next()) {
             itemPrice = resultSet.getBigDecimal(1);
             orderItems[index].itemName = resultSet.getString(2);
         }
@@ -216,28 +242,30 @@ public class NewOrderTransaction extends Transaction {
         ResultSet resultSet = preparedStatement.executeQuery();
 
         String distinctionInfo = "";
-        if(resultSet.next()) {
+        if (resultSet.next()) {
             distinctionInfo = resultSet.getString(1);
         }
-
-        String createNewOrderLineSql = "insert into wholesale.order_line \n" +
-                "( ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, \n" +
-                " ol_supply_w_id, ol_quantity, ol_amount, ol_delivery_d, ol_dist_info ) \n" +
-                "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        preparedStatement = connection.prepareStatement(createNewOrderLineSql);
-        preparedStatement.setInt(1, orderId);
-        preparedStatement.setInt(2, customerDistrictID);
-        preparedStatement.setInt(3, customerWarehouseID);
-        preparedStatement.setInt(4, orderLineNumber);
-        preparedStatement.setInt(5, orderItems[index].itemNumber);
-        preparedStatement.setInt(6, orderItems[index].supplierWarehouse);
-        preparedStatement.setInt(7, orderItems[index].quantity);
-        preparedStatement.setBigDecimal(8, orderItems[index].orderLineAmount);
-        preparedStatement.setTimestamp(9, null);
-        preparedStatement.setString(10, distinctionInfo);
-
-        preparedStatement.executeUpdate();
         preparedStatement.close();
+
+        preparedStatementForOrderLine.setInt(1, orderId);
+        preparedStatementForOrderLine.setInt(2, customerDistrictID);
+        preparedStatementForOrderLine.setInt(3, customerWarehouseID);
+        preparedStatementForOrderLine.setInt(4, orderLineNumber);
+        preparedStatementForOrderLine.setInt(5, orderItems[index].itemNumber);
+        preparedStatementForOrderLine.setInt(6, orderItems[index].supplierWarehouse);
+        preparedStatementForOrderLine.setInt(7, orderItems[index].quantity);
+        preparedStatementForOrderLine.setBigDecimal(8, orderItems[index].orderLineAmount);
+        preparedStatementForOrderLine.setTimestamp(9, null);
+        preparedStatementForOrderLine.setString(10, distinctionInfo);
+        preparedStatementForOrderLine.addBatch();
+
+        preparedStatementForCustomerOrderLine.setInt(1, customerWarehouseID);
+        preparedStatementForCustomerOrderLine.setInt(2, customerDistrictID);
+        preparedStatementForCustomerOrderLine.setInt(3, customerID);
+        preparedStatementForCustomerOrderLine.setInt(4, orderId);
+        preparedStatementForCustomerOrderLine.setInt(5, orderItems[index].itemNumber);
+        preparedStatementForCustomerOrderLine.addBatch();
+
 
     }
 
@@ -247,7 +275,7 @@ public class NewOrderTransaction extends Transaction {
         preparedStatement.setInt(1, customerWarehouseID);
         ResultSet resultSet = preparedStatement.executeQuery();
 
-        if(resultSet.next()) {
+        if (resultSet.next()) {
             warehouseTax = resultSet.getBigDecimal(1);
         }
         String getDistrictTaxSql = "select d_tax from wholesale.district where d_w_id = ? and d_id = ?";
@@ -256,7 +284,7 @@ public class NewOrderTransaction extends Transaction {
         preparedStatement.setInt(2, customerDistrictID);
         resultSet = preparedStatement.executeQuery();
 
-        if(resultSet.next()) {
+        if (resultSet.next()) {
             districtTax = resultSet.getBigDecimal(1);
         }
         String getCustomerInfoSql = "select c_last, c_credit, c_discount from wholesale.customer \n" +
@@ -267,7 +295,7 @@ public class NewOrderTransaction extends Transaction {
         preparedStatement.setInt(3, customerID);
         resultSet = preparedStatement.executeQuery();
 
-        if(resultSet.next()) {
+        if (resultSet.next()) {
             customerLastName = resultSet.getString(1);
             customerCredit = resultSet.getString(2);
             customerDiscount = resultSet.getBigDecimal(3);
@@ -305,13 +333,13 @@ public class NewOrderTransaction extends Transaction {
                 ", Total amount for order: " + totalAmount);
 
 
-        for (int i = 0; i < numberOfItems; i++){
+        for (int i = 0; i < numberOfItems; i++) {
 
             System.out.println("Item Number: " + orderItems[i].itemNumber +
                     ", Item name: " + orderItems[i].itemName +
                     ", Supplier Warehouse: " + orderItems[i].supplierWarehouse +
                     ", Item Quantity: " + orderItems[i].quantity +
-                    ", OrderLine Amount: "  + orderItems[i].orderLineAmount +
+                    ", OrderLine Amount: " + orderItems[i].orderLineAmount +
                     ", Stock Quantity: " + orderItems[i].stockQuantity);
 
         }

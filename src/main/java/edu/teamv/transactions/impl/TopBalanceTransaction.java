@@ -21,7 +21,7 @@ public class TopBalanceTransaction extends Transaction {
     }
 
     @Override
-    public void execute() {
+    public void execute() throws SQLException {
 
         try {
 
@@ -75,8 +75,15 @@ public class TopBalanceTransaction extends Transaction {
                         customer.getFirstName(), customer.getMiddleName(), customer.getLastName(), customer.getBalance(), warehouseNames[i], districtNames[i]));
             }
 
-        } catch (SQLException e) {
+            connection.commit();
+        } catch (Exception e) {
             e.printStackTrace();
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            throw new SQLException();
         } finally {
             try {
                 connection.close();

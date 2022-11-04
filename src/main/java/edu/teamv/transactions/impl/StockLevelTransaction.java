@@ -28,7 +28,7 @@ public class StockLevelTransaction extends Transaction {
     }
 
     @Override
-    public void execute() {
+    public void execute() throws SQLException {
         try {
             System.out.println("======Stock Level Transaction======");
             Integer N = getNextOrderNumber();
@@ -36,6 +36,7 @@ public class StockLevelTransaction extends Transaction {
             Integer itemNumber = getItemNumberBelowThread(itemSet);
             System.out.println(" The total number of items below the threshold: " + itemNumber);
 
+            connection.commit();
             connection.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -43,6 +44,13 @@ public class StockLevelTransaction extends Transaction {
                 connection.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
+                throw new SQLException();
+            }
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
 

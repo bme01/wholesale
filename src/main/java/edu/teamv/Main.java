@@ -38,7 +38,6 @@ public class Main {
         } finally {
             PerformanceMeasurementUtil.detailedReport();
         }
-        // PerformanceMeasurementUtil.detailedReport();
     }
 
     static public void parseAndEvaluate(String commandString, BufferedReader reader)
@@ -74,7 +73,7 @@ public class Main {
             }
             case "R": {
                 String[] customeridentifier = Arrays.copyOfRange(command, 1, command.length);
-                System.out.println("Related customer transaction skipped: " + Arrays.toString(customeridentifier));
+                // System.out.println("Related customer transaction skipped: " + Arrays.toString(customeridentifier));
                 Transaction transaction = new RelatedCustomerTransaction(customeridentifier);
                 // PerformanceMeasurementUtil.run(transaction::execute);
                 PerformanceMeasurementUtil.performanceTest(transaction);

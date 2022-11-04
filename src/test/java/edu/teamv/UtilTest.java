@@ -1,5 +1,7 @@
 package edu.teamv;
 
+import edu.teamv.utils.DatabaseStateUtil;
+import edu.teamv.utils.LoadDataUtil;
 import edu.teamv.utils.datasource.impl.PgDataSource;
 import edu.teamv.utils.datasource.impl.YugabyteDataSource;
 import edu.teamv.transactions.Transaction;
@@ -51,8 +53,11 @@ public class UtilTest {
     public void performanceMeasurementUtilTest() throws SQLException, IOException, ClassNotFoundException {
         Transaction deliveryTransaction = new DeliveryTransaction(new String[]{"1", "1"});
         Transaction paymentTransaction = new PaymentTransaction(new String[]{"1", "1", "1", "100.98"});
-        PerformanceMeasurementUtil.run(deliveryTransaction::execute);
-        PerformanceMeasurementUtil.run(paymentTransaction::execute);
+        // PerformanceMeasurementUtil.run(deliveryTransaction::execute);
+        // PerformanceMeasurementUtil.run(paymentTransaction::execute);
+        PerformanceMeasurementUtil.performanceTest(deliveryTransaction);
+        PerformanceMeasurementUtil.performanceTest(paymentTransaction);
+        PerformanceMeasurementUtil.detailedReport();
         PerformanceMeasurementUtil.report();
     }
 
@@ -62,5 +67,15 @@ public class UtilTest {
         Properties properties = new Properties();
         properties.load(inputStream);
         System.out.println(properties);
+    }
+
+    @Test
+    public void loadDataTest () throws SQLException, IOException, ClassNotFoundException {
+        LoadDataUtil.loadDataToNTD();
+    }
+
+    @Test
+    public void dbStateTest () throws SQLException, IOException {
+        DatabaseStateUtil.reportFinalState();
     }
 }

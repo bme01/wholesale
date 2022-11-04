@@ -37,7 +37,7 @@ public class PaymentTransaction extends Transaction {
     }
 
     @Override
-    public void execute() {
+    public void execute() throws SQLException {
         try {
 
             updateWarehouse();
@@ -47,6 +47,7 @@ public class PaymentTransaction extends Transaction {
             Customer customer = findCustomer();
             Warehouse warehouse = findWarehouse();
             District district = findDistrict();
+
 
             // output results
             System.out.println(String.format("Customer Identifier: (%d, %d, %d); Name: %s, %s, %s; " +
@@ -62,14 +63,20 @@ public class PaymentTransaction extends Transaction {
                     district.getStreet1(), district.getStreet2(), district.getCity(), district.getState(), district.getZip()));
             System.out.println(String.format("Payment Amount: %.2f", payment));
 
-            // connection.commit();
-            connection.close();
+            connection.commit();
         } catch (Exception e) {
             e.printStackTrace();
             try {
                 connection.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
+                throw new SQLException();
+            }
+        } finally {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
     }
