@@ -31,7 +31,6 @@ public class DeliveryTransaction extends Transaction {
                 updateCarrier(order);
                 updateOrderLines(order);
                 updateCustomer(order);
-                updateNtd(order);
             }
             connection.commit();
         } catch (Exception e) {
@@ -56,8 +55,9 @@ public class DeliveryTransaction extends Transaction {
 
         String getOrderInfoSql = "select o_id, o_c_id from wholesale.order\n" +
                 "where o_w_id = ? and o_d_id = ?\n" +
-                "and o_id = (select ntd_o_id from wholesale.next_to_deliver_order \n" +
-                "where ntd_w_id = ? and ntd_d_id = ?);";
+                "and o_id = (select MIN(o_id) from wholesale.order \n" +
+                "where o_w_id = ? and o_d_id = ?\n" +
+                "and \"order\".o_carrier_id is NULL);";
 
         PreparedStatement preparedStatement = connection.prepareStatement(getOrderInfoSql);
         List<Order> orders = new ArrayList<>();
@@ -75,7 +75,7 @@ public class DeliveryTransaction extends Transaction {
                 order.setOrderID(resultSet.getInt(1));
                 order.setCustomerID(resultSet.getInt(2));
                 orders.add(order);
-                // System.out.println(order);
+                System.out.println(order);
             }
         }
         preparedStatement.close();
@@ -144,18 +144,4 @@ public class DeliveryTransaction extends Transaction {
         preparedStatement2.close();
     }
 
-
-    private void updateNtd(Order order) throws SQLException {
-
-        String updateNtdSql = "update wholesale.next_to_deliver_order \n" +
-                "set ntd_o_id = ntd_o_id + 1 \n" +
-                "where ntd_w_id = ? and ntd_d_id = ? and ntd_o_id = ?";
-
-        PreparedStatement preparedStatement = connection.prepareStatement(updateNtdSql);
-        preparedStatement.setInt(1, warehouseID);
-        preparedStatement.setInt(2, order.getDistrictID());
-        preparedStatement.setInt(3, order.getOrderID());
-        preparedStatement.executeUpdate();
-        preparedStatement.close();
-    }
 }

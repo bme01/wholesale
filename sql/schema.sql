@@ -94,6 +94,21 @@ CREATE TABLE wholesale.customer (
 ALTER TABLE wholesale.customer OWNER TO postgres;
 
 --
+-- Name: customer_order_items; Type: TABLE; Schema: wholesale; Owner: postgres
+--
+
+CREATE TABLE wholesale.customer_order_items (
+    coi_w_id integer NOT NULL,
+    coi_d_id integer NOT NULL,
+    coi_c_id integer NOT NULL,
+    coi_o_id integer NOT NULL,
+    coi_i_id integer NOT NULL
+);
+
+
+ALTER TABLE wholesale.customer_order_items OWNER TO postgres;
+
+--
 -- Name: district; Type: TABLE; Schema: wholesale; Owner: postgres
 --
 
@@ -128,19 +143,6 @@ CREATE TABLE wholesale.item (
 
 
 ALTER TABLE wholesale.item OWNER TO postgres;
-
---
--- Name: next_to_deliver_order; Type: TABLE; Schema: wholesale; Owner: postgres
---
-
-CREATE TABLE wholesale.next_to_deliver_order (
-    ntd_w_id integer NOT NULL,
-    ntd_d_id integer NOT NULL,
-    ntd_o_id integer NOT NULL
-);
-
-
-ALTER TABLE wholesale.next_to_deliver_order OWNER TO postgres;
 
 --
 -- Name: order; Type: TABLE; Schema: wholesale; Owner: postgres
@@ -223,23 +225,8 @@ CREATE TABLE wholesale.warehouse (
     w_ytd numeric(12,2) NOT NULL
 );
 
+
 ALTER TABLE wholesale.warehouse OWNER TO postgres;
-
---
--- Name: customer_order_items; Type: TABLE; Schema: wholesale; Owner: postgres
---
-
-CREATE TABLE wholesale.customer_order_items (
-  coi_w_id integer NOT NULL,
-  coi_d_id integer NOT NULL,
-  coi_c_id integer NOT NULL,
-  coi_o_id integer NOT NULL,
-  coi_i_id integer NOT NULL
-);
-
-ALTER TABLE wholesale.customer_order_items OWNER TO postgres;
-
-
 
 --
 -- Name: balance balance_pkey; Type: CONSTRAINT; Schema: wholesale; Owner: postgres
@@ -247,6 +234,14 @@ ALTER TABLE wholesale.customer_order_items OWNER TO postgres;
 
 ALTER TABLE ONLY wholesale.balance
     ADD CONSTRAINT balance_pkey PRIMARY KEY (b_c_id, b_c_w_id, b_c_d_id);
+
+
+--
+-- Name: customer_order_items customer_order_items_pkey; Type: CONSTRAINT; Schema: wholesale; Owner: postgres
+--
+
+ALTER TABLE ONLY wholesale.customer_order_items
+    ADD CONSTRAINT customer_order_items_pkey PRIMARY KEY (coi_w_id, coi_d_id, coi_i_id, coi_c_id, coi_o_id);
 
 
 --
@@ -271,14 +266,6 @@ ALTER TABLE ONLY wholesale.district
 
 ALTER TABLE ONLY wholesale.item
     ADD CONSTRAINT item_pkey PRIMARY KEY (i_id);
-
-
---
--- Name: next_to_deliver_order next_to_deliver_order_pkey; Type: CONSTRAINT; Schema: wholesale; Owner: postgres
---
-
-ALTER TABLE ONLY wholesale.next_to_deliver_order
-    ADD CONSTRAINT next_to_deliver_order_pkey PRIMARY KEY (ntd_w_id, ntd_d_id, ntd_o_id);
 
 
 --
@@ -314,20 +301,10 @@ ALTER TABLE ONLY wholesale.warehouse
 
 
 --
--- Name: customer_order_items customer_order_items_pkey; Type: CONSTRAINT; Schema: wholesale; Owner: postgres
---
-
-ALTER TABLE ONLY wholesale.customer_order_items
-    ADD CONSTRAINT customer_order_items_pkey PRIMARY KEY (coi_w_id, coi_d_id, coi_i_id, coi_c_id, coi_o_id);
-
-
-
---
 -- Name: balance_index; Type: INDEX; Schema: wholesale; Owner: postgres
 --
 
 CREATE INDEX balance_index ON wholesale.balance USING btree (b_c_balance DESC NULLS LAST);
-
 
 
 --
@@ -335,20 +312,6 @@ CREATE INDEX balance_index ON wholesale.balance USING btree (b_c_balance DESC NU
 --
 
 CREATE INDEX order_fk ON wholesale."order" USING btree (o_w_id, o_d_id, o_c_id);
-
-
--- --
--- -- Name: order_line_fk_1; Type: INDEX; Schema: wholesale; Owner: postgres
--- --
-
--- CREATE INDEX order_line_fk_1 ON wholesale.order_line USING btree (ol_w_id, ol_d_id, ol_o_id);
-
-
---
--- Name: order_line_fk_2; Type: INDEX; Schema: wholesale; Owner: postgres
---
-
--- CREATE INDEX order_line_fk_2 ON wholesale.order_line USING btree (ol_i_id);
 
 
 --
