@@ -20,7 +20,7 @@ public class DatabaseStateUtil {
         PreparedStatement w = connection.prepareStatement(warehouseSql);
         ResultSet resultSetW = w.executeQuery();
         if (resultSetW.next()) {
-            System.out.println(resultSetW.getInt(1));
+            System.err.println(resultSetW.getInt(1));
         }
         w.close();
 
@@ -30,8 +30,8 @@ public class DatabaseStateUtil {
         PreparedStatement d = connection.prepareStatement(districtSql);
         ResultSet resultSetD = d.executeQuery();
         if (resultSetD.next()) {
-            System.out.println(resultSetD.getInt(1));
-            System.out.println(resultSetD.getInt(2));
+            System.err.println(resultSetD.getInt(1));
+            System.err.println(resultSetD.getInt(2));
         }
         d.close();
 
@@ -40,10 +40,10 @@ public class DatabaseStateUtil {
         PreparedStatement c = connection.prepareStatement(customerSql);
         ResultSet resultSetC = c.executeQuery();
         if (resultSetC.next()) {
-            System.out.println(resultSetC.getBigDecimal(1));
-            System.out.println(resultSetC.getBigDecimal(2));
-            System.out.println(resultSetC.getInt(3));
-            System.out.println(resultSetC.getInt(4));
+            System.err.println(resultSetC.getBigDecimal(1));
+            System.err.println(resultSetC.getBigDecimal(2));
+            System.err.println(resultSetC.getInt(3));
+            System.err.println(resultSetC.getInt(4));
         }
         c.close();
 
@@ -52,8 +52,8 @@ public class DatabaseStateUtil {
         PreparedStatement o = connection.prepareStatement(orderSql);
         ResultSet resultSetO = o.executeQuery();
         if (resultSetO.next()) {
-            System.out.println(resultSetO.getInt(1));
-            System.out.println(resultSetO.getInt(2));
+            System.err.println(resultSetO.getInt(1));
+            System.err.println(resultSetO.getInt(2));
         }
         o.close();
 
@@ -61,8 +61,8 @@ public class DatabaseStateUtil {
         PreparedStatement oL = connection.prepareStatement(orderLineSql);
         ResultSet resultSetOL = oL.executeQuery();
         if (resultSetOL.next()) {
-            System.out.println(resultSetOL.getBigDecimal(1));
-            System.out.println(resultSetOL.getInt(2));
+            System.err.println(resultSetOL.getBigDecimal(1));
+            System.err.println(resultSetOL.getInt(2));
         }
         oL.close();
 
@@ -71,10 +71,10 @@ public class DatabaseStateUtil {
         PreparedStatement s = connection.prepareStatement(stockSql);
         ResultSet resultSetS = s.executeQuery();
         if (resultSetS.next()) {
-            System.out.println(resultSetS.getInt(1));
-            System.out.println(resultSetS.getBigDecimal(2));
-            System.out.println(resultSetS.getInt(3));
-            System.out.println(resultSetS.getInt(4));
+            System.err.println(resultSetS.getInt(1));
+            System.err.println(resultSetS.getBigDecimal(2));
+            System.err.println(resultSetS.getInt(3));
+            System.err.println(resultSetS.getInt(4));
         }
         c.close();
     }
