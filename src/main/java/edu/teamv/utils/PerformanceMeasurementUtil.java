@@ -3,9 +3,14 @@ package edu.teamv.utils;
 import edu.teamv.transactions.Transaction;
 import edu.teamv.transactions.impl.*;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PerformanceMeasurementUtil {
 
@@ -217,6 +222,11 @@ public class PerformanceMeasurementUtil {
 
         }
 
+        private void toStderr(String clientNum) {
+            System.err.println(String.format(String.format("%s,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f",
+                    clientNum, executed, totalExecutionTime / 1_000, throughput(), average(), median(), percentile95(), percentile99())));
+        }
+
         public int getExecuted() {
             return executed;
         }
@@ -224,6 +234,10 @@ public class PerformanceMeasurementUtil {
 
     public static void report() {
         overallStatistics.show();
+    }
+
+    public static void report(String clientNum) {
+        overallStatistics.toStderr(clientNum);
     }
 
     public static void detailedReport() {
@@ -244,8 +258,28 @@ public class PerformanceMeasurementUtil {
         stockLevelStatistics.show("Stock Level");
 
         topBalanceStatistics.show("Top Balance");
+
     }
 
+    public static void reportThroughput() throws IOException {
+
+        String clientsPath = File.pathSeparator + "clients.csv";
+        Stream<String> stream = Files.lines(Paths.get(clientsPath));
+        List<String> lines = stream.collect(Collectors.toList());
+
+        List<Double> throughputList = new ArrayList<>();
+        double total = 0;
+
+        for (String line : lines) {
+            String[] splits = line.split(",");
+            double throughput = Double.parseDouble(splits[3]);
+            throughputList.add(throughput);
+            total += throughput;
+        }
+
+        Collections.sort(throughputList);
+        System.out.println(String.format("%f,%f,%f", throughputList.get(0), throughputList.get(throughputList.size() - 1), total / throughputList.size()));
+    }
 
     @FunctionalInterface
     public interface Function<E extends Throwable> {
