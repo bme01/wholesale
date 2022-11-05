@@ -2,7 +2,6 @@ SCRIPT_PATH_DIR="/home/stuproj/cs4224v/ysql_project/"
 SCRIPT_NAME="wholesale-1.0-SNAPSHOT.jar"
 XACT_FILE_DIR="/temp/cs4224v/project_files/xact_files/"
 # XACT_FILE_DIR="/temp/cs4224v/project_files/"
-
 for cid in 0 5 10 15
 do
     echo "Excuting Client $cid.txt"
