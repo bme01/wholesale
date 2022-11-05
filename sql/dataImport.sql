@@ -7,4 +7,4 @@
 \copy wholesale.order_line from '/temp/cs4224v/project_files/data_files/order-line.csv' with NULL AS 'null' csv;
 \copy wholesale.stock from '/temp/cs4224v/project_files/data_files/stock.csv' csv;
 \copy wholesale.balance from '/temp/cs4224v/processed_files/data_files/customer_balance.csv' csv HEADER;
-\copy wholesale.customer_order_items from '/temp/cs4224v/processed_files/data_files/customer_order_items.csv' csv HEADER;
+\copy wholesale.customer_order_items (coi_w_id, coi_d_id, coi_o_id, coi_i_id, coi_c_id) from '/temp/cs4224v/processed_files/data_files/customer_order_items.csv' csv HEADER;
