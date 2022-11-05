@@ -4,7 +4,6 @@ import edu.teamv.pojo.Customer;
 import edu.teamv.pojo.District;
 import edu.teamv.pojo.Warehouse;
 import edu.teamv.transactions.Transaction;
-import edu.teamv.utils.PreparedStatementUtil;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -12,8 +11,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class PaymentTransaction extends Transaction {
 
@@ -109,35 +106,18 @@ public class PaymentTransaction extends Transaction {
 
     private void updateCustomer() throws SQLException {
 
+        String updateCustomerSql = "update wholesale.customer set c_balance = c_balance - ?, c_ytd_payment = c_ytd_payment + ?, c_payment_cnt = c_payment_cnt + 1\n" +
+                        "where c_w_id = ? and c_d_id = ? and c_id = ?;";
 
-        List<Object> sqlParameters = new ArrayList<>();
-        sqlParameters.add(payment);
-        sqlParameters.add(customerID);
-        sqlParameters.add(customerDistrictID);
-        sqlParameters.add(customerID);
+        PreparedStatement preparedStatement = connection.prepareStatement(updateCustomerSql);
+        preparedStatement.setBigDecimal(1, payment);
+        preparedStatement.setBigDecimal(2, payment);
+        preparedStatement.setInt(3, customerWarehouseID);
+        preparedStatement.setInt(4, customerDistrictID);
+        preparedStatement.setInt(5, customerID);
 
-        String updateCustomerBalanceSql = "update wholesale.customer set c_balance = c_balance - ? \n" +
-                "where c_w_id = ? and c_d_id = ? and c_id = ?;";
-
-        PreparedStatement preparedStatement1 = PreparedStatementUtil.getPreparedStatement(connection, updateCustomerBalanceSql, sqlParameters);
-        preparedStatement1.executeUpdate();
-        preparedStatement1.close();
-
-        String updateCustomerYtdPaymentSql = "update wholesale.customer set c_ytd_payment = c_ytd_payment + ? \n" +
-                "where c_w_id = ? and c_d_id = ? and c_id = ?;";
-
-        PreparedStatement preparedStatement2 = PreparedStatementUtil.getPreparedStatement(connection, updateCustomerYtdPaymentSql, sqlParameters);
-        preparedStatement2.executeUpdate();
-        preparedStatement2.close();
-
-        sqlParameters.remove(0);
-
-        String updateCustomerPaymentCountSql = "update wholesale.customer set c_payment_cnt = c_payment_cnt + 1 \n" +
-                "where c_w_id = ? and c_d_id = ? and c_id = ?;";
-
-        PreparedStatement preparedStatement3 = PreparedStatementUtil.getPreparedStatement(connection, updateCustomerPaymentCountSql, sqlParameters);
-        preparedStatement3.executeUpdate();
-        preparedStatement3.close();
+        preparedStatement.executeUpdate();
+        preparedStatement.close();
 
     }
 

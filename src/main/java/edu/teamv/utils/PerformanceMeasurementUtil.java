@@ -212,8 +212,8 @@ public class PerformanceMeasurementUtil {
 
         private void show(String transactionName) {
             if (latencyList.isEmpty()) return;
-            System.out.println(String.format("%s: %d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f",
-                    transactionName, executed, totalExecutionTime / 1_000, throughput(), average(), median(), percentile95(), percentile99()));
+            System.out.println(String.format("%s: %d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f; Aborted: %d",
+                    transactionName, executed, totalExecutionTime / 1_000, throughput(), average(), median(), percentile95(), percentile99(), failed));
 
         }
 
