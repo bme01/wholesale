@@ -79,7 +79,7 @@ upload project files
     ```
     scp -r SOURCE_PATH/wholesale.zip cs4224v@xcndXX.comp.nus.edu.sg:/home/stuproj/cs4224v/ysql_project_final/
     cd /home/stuproj/cs4224v/ysql_project_final/
-    unzip wholesale.zip
+    unzip v_ysql.zip
     ``` 
 
 ### Preprocess data
