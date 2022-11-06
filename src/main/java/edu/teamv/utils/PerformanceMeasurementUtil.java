@@ -263,7 +263,7 @@ public class PerformanceMeasurementUtil {
 
     public static void reportThroughput() throws IOException {
 
-        String clientsPath = File.pathSeparator + "clients.csv";
+        String clientsPath = File.pathSeparator +"ClientExecute" + File.pathSeparator + "clients.csv";
         Stream<String> stream = Files.lines(Paths.get(clientsPath));
         List<String> lines = stream.collect(Collectors.toList());
 
