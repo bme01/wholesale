@@ -1,6 +1,6 @@
-# CS4224v Project
+# CS4224v Project - YSQL
 
-## YSQL
+## Project GitHub Repository: [GitHub - bme01/wholesale](https://github.com/bme01/wholesale)
 
 ### Python package
 
@@ -100,12 +100,14 @@ upload project files
    
    ```
    mkdir /temp/cs4224v/processed_data
-   python3 /home/stuproj/cs4224v/ysql_project_final/dataprocess/preprocess.py
+   python3 /home/stuproj/cs4224v/ysql_project_final/wholesale/dataprocess/preprocess.py
    ```
 
 ### Set up database
 
 1. Create schema
+   
+   Run the following command in the installation path of yugabyteDB (/temp/cs4224v/yugabyte-X.XX.X.X) :
    
    ```
     ./bin/ysqlsh -h 192.168.51.10 -p 5434 -f /home/stuproj/cs4224v/ysql_project_final/wholesale/sql/schema.sql 
@@ -125,14 +127,14 @@ upload project files
    cd  /home/stuproj/cs4224v/ysql_project_final/wholesale/ClientExecute
    ```
 
-4. Run the 20 xact file on 5 different server (user could change script path in the files according to actual path)
+4. Run the 20 xact file on 5 different servers (user could change script path in the files according to the actual path). The output of each client will be written to outputClientNumber.txt. 
    
    ```
-   bash execute.sh run serverNumver   (eg. run `bash execute.sh run 0` on server 0 )
+   bash execute.sh run serverNumber   (eg. run `bash execute.sh run 0` on server 0 )
    ```
 
-5. After all clients complete execution (in the ouput file, user could find the summary)
-   get client infomation
+5. After all clients complete execution (in the output file, the user could find the summary)
+   get client infomation (clients.csv)
    
    ```
    bash execute.sh run getclient
