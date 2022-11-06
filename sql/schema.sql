@@ -2,8 +2,31 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 11.17
+-- Dumped from database version 11.2-YB-2.15.2.1-b0
 -- Dumped by pg_dump version 11.17
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+DROP DATABASE cs5424_ysql;
+--
+-- Name: cs5424_ysql; Type: DATABASE; Schema: -; Owner: yugabyte
+--
+
+CREATE DATABASE cs5424_ysql WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'C' LC_CTYPE = 'en_US.UTF-8';
+
+
+ALTER DATABASE cs5424_ysql OWNER TO yugabyte;
+
+\connect cs5424_ysql
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -304,14 +327,14 @@ ALTER TABLE ONLY wholesale.warehouse
 -- Name: balance_index; Type: INDEX; Schema: wholesale; Owner: postgres
 --
 
-CREATE INDEX balance_index ON wholesale.balance USING btree (b_c_balance DESC NULLS LAST);
+CREATE INDEX balance_index ON wholesale.balance USING lsm (b_c_balance DESC NULLS LAST);
 
 
 --
 -- Name: order_fk; Type: INDEX; Schema: wholesale; Owner: postgres
 --
 
-CREATE INDEX order_fk ON wholesale."order" USING btree (o_w_id, o_d_id, o_c_id);
+CREATE INDEX order_fk ON wholesale."order" USING lsm (o_w_id HASH, o_d_id ASC, o_c_id ASC);
 
 
 --

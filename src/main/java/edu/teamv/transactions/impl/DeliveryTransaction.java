@@ -75,7 +75,6 @@ public class DeliveryTransaction extends Transaction {
                 order.setOrderID(resultSet.getInt(1));
                 order.setCustomerID(resultSet.getInt(2));
                 orders.add(order);
-                System.out.println(order);
             }
         }
         preparedStatement.close();
