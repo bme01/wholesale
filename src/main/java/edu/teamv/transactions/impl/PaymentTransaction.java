@@ -69,6 +69,7 @@ public class PaymentTransaction extends Transaction {
                 ex.printStackTrace();
                 throw new SQLException();
             }
+            throw new SQLException();
         } finally {
             try {
                 connection.close();

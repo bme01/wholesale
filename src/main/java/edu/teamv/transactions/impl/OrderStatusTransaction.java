@@ -40,8 +40,8 @@ public class OrderStatusTransaction extends Transaction {
                 connection.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
-                throw new SQLException();
             }
+            throw new SQLException();
         } finally {
             try {
                 connection.close();
