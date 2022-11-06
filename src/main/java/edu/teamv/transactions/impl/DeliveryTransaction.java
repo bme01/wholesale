@@ -34,18 +34,18 @@ public class DeliveryTransaction extends Transaction {
             }
             connection.commit();
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(System.out);
             try {
                 connection.rollback();
             } catch (SQLException ex) {
-                ex.printStackTrace();
+                ex.printStackTrace(System.out);
             }
             throw new SQLException();
         } finally {
             try {
                 connection.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                e.printStackTrace(System.out);
             }
         }
     }
@@ -75,6 +75,7 @@ public class DeliveryTransaction extends Transaction {
                 order.setOrderID(resultSet.getInt(1));
                 order.setCustomerID(resultSet.getInt(2));
                 orders.add(order);
+                System.out.println(order);
             }
         }
         preparedStatement.close();
