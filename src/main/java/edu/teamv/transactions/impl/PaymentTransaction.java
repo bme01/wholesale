@@ -62,18 +62,18 @@ public class PaymentTransaction extends Transaction {
 
             connection.commit();
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(System.out);
             try {
                 connection.rollback();
             } catch (SQLException ex) {
-                ex.printStackTrace();
+                ex.printStackTrace(System.out);
                 throw new SQLException();
             }
         } finally {
             try {
                 connection.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                e.printStackTrace(System.out);
             }
         }
     }

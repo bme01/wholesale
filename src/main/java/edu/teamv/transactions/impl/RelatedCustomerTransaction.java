@@ -59,18 +59,18 @@ public class RelatedCustomerTransaction extends Transaction {
             System.out.println("======End Transaction======");
             connection.commit();
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(System.out);
             try {
                 connection.rollback();
             } catch (SQLException ex) {
-                ex.printStackTrace();
-                throw new SQLException();
+                ex.printStackTrace(System.out);
             }
+            throw new SQLException();
         } finally {
             try {
                 connection.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                e.printStackTrace(System.out);
             }
         }
 

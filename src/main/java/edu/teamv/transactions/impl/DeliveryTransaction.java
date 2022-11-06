@@ -34,18 +34,18 @@ public class DeliveryTransaction extends Transaction {
             }
             connection.commit();
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(System.out);
             try {
                 connection.rollback();
             } catch (SQLException ex) {
-                ex.printStackTrace();
+                ex.printStackTrace(System.out);
             }
             throw new SQLException();
         } finally {
             try {
                 connection.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                e.printStackTrace(System.out);
             }
         }
     }
@@ -75,7 +75,6 @@ public class DeliveryTransaction extends Transaction {
                 order.setOrderID(resultSet.getInt(1));
                 order.setCustomerID(resultSet.getInt(2));
                 orders.add(order);
-                System.out.println(order);
             }
         }
         preparedStatement.close();
@@ -128,7 +127,6 @@ public class DeliveryTransaction extends Transaction {
             totalAmount = resultSet.getBigDecimal(1);
         }
         preparedStatement1.close();
-        // System.out.println("total amount is " + totalAmount);
 
         // update customer
         String updateCustomer = "update wholesale.customer set c_balance = c_balance + ?, c_delivery = c_delivery + 1 \n" +

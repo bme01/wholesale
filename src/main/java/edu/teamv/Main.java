@@ -3,6 +3,7 @@ package edu.teamv;
 
 import edu.teamv.transactions.Transaction;
 import edu.teamv.transactions.impl.*;
+import edu.teamv.utils.DatabaseStateUtil;
 import edu.teamv.utils.PerformanceMeasurementUtil;
 
 import java.io.BufferedReader;
@@ -16,27 +17,44 @@ public class Main {
 
 
     public static void main(String... args) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)); //NOPMD
-        int NumberOfTransactions = 0;
-        String commandString;
+        switch (args[0]) {
+            case "run": {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)); //NOPMD
+                int NumberOfTransactions = 0;
+                String commandString;
 
-        try {
-            while ((commandString = reader.readLine()) != null) {
+                try {
+                    while ((commandString = reader.readLine()) != null) {
 
-                parseAndEvaluate(commandString, reader);
-                NumberOfTransactions++;
+                        parseAndEvaluate(commandString, reader);
+                        NumberOfTransactions++;
 
+                    }
+                    reader.close();
+                    System.out.println("Summary: ");
+                    System.out.println("Total number of transactions processed: " + NumberOfTransactions);
+                    return; // EOF found, Streams are closed, terminate process
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    return; // Streams are closed, terminate process
+
+                } finally {
+                    PerformanceMeasurementUtil.detailedReport();
+                    PerformanceMeasurementUtil.report(args[1]);
+
+                }
             }
-            reader.close();
-            System.out.println("Summary: ");
-            System.out.println("Total number of transactions processed: " + NumberOfTransactions);
-            return; // EOF found, Streams are closed, terminate process
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            // return; // Streams are closed, terminate process
 
-        } finally {
-            PerformanceMeasurementUtil.detailedReport();
+            case "report": {
+                try {
+                    PerformanceMeasurementUtil.reportThroughput();
+                    DatabaseStateUtil.reportFinalState();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
+                }
+            }
+
         }
     }
 
